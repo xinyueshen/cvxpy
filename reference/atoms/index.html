@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Atoms package – cvxpy.atoms &mdash; CVXPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/f6.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CVXPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="API Reference" href="../index.html" />
+    <link rel="next" title="Problems package – cvxpy.problems" href="../problems/index.html" />
+    <link rel="prev" title="API Reference" href="../index.html" /><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,300italic,400italic,600italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../problems/index.html" title="Problems package – cvxpy.problems"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="API Reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Atoms package &#8211; <tt class="docutils literal"><span class="pre">cvxpy.atoms</span></tt></a><ul>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#affine">Affine</a></li>
+<li><a class="reference internal" href="#element-wise">Element-wise</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">API Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../problems/index.html"
+                        title="next chapter">Problems package &#8211; <tt class="docutils literal"><span class="pre">cvxpy.problems</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/reference/atoms/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="atoms-package-cvxpy-atoms">
+<span id="cvxpy-atoms"></span><h1>Atoms package &#8211; <tt class="xref py py-mod docutils literal"><span class="pre">cvxpy.atoms</span></tt><a class="headerlink" href="#atoms-package-cvxpy-atoms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.geo_mean" title="cvxpy.geo_mean"><tt class="xref py py-obj docutils literal"><span class="pre">geo_mean</span></tt></a>(x,&nbsp;y)</td>
+<td>Geometric mean of two scalars; <span class="math">\((x_1, \cdots, x_n)^{1/n}\)</span>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.lambda_max" title="cvxpy.lambda_max"><tt class="xref py py-obj docutils literal"><span class="pre">lambda_max</span></tt></a>(A)</td>
+<td>Maximum eigenvalue; <span class="math">\(\lambda_{\max}(A)\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.lambda_min" title="cvxpy.lambda_min"><tt class="xref py py-obj docutils literal"><span class="pre">lambda_min</span></tt></a>(A)</td>
+<td>Miximum eigenvalue; <span class="math">\(\lambda_{\min}(A)\)</span>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.log_det" title="cvxpy.log_det"><tt class="xref py py-obj docutils literal"><span class="pre">log_det</span></tt></a>(A)</td>
+<td><span class="math">\(\log\det A\)</span></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.log_sum_exp" title="cvxpy.log_sum_exp"><tt class="xref py py-obj docutils literal"><span class="pre">log_sum_exp</span></tt></a>(x)</td>
+<td><span class="math">\(\log\sum_i e^{x_i}\)</span></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.norm1" title="cvxpy.norm1"><tt class="xref py py-obj docutils literal"><span class="pre">norm1</span></tt></a>(x)</td>
+<td>L1 norm; <span class="math">\(\sum_i|x_i|\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.norm2" title="cvxpy.norm2"><tt class="xref py py-obj docutils literal"><span class="pre">norm2</span></tt></a>(x)</td>
+<td>L2 norm; <span class="math">\((\sum_i x_i^2)^{1/2}\)</span>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.normInf" title="cvxpy.normInf"><tt class="xref py py-obj docutils literal"><span class="pre">normInf</span></tt></a>(x)</td>
+<td>Infinity norm; <span class="math">\(\max_i\{|x_i|, \dots, |x_n|\}\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.normNuc" title="cvxpy.normNuc"><tt class="xref py py-obj docutils literal"><span class="pre">normNuc</span></tt></a>(A)</td>
+<td>Sum of the singular values.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">quad_form</span></tt>(x,&nbsp;P)</td>
+<td>Alias for <span class="math">\(x^T P x\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.quad_over_lin" title="cvxpy.quad_over_lin"><tt class="xref py py-obj docutils literal"><span class="pre">quad_over_lin</span></tt></a>(x,&nbsp;y)</td>
+<td><span class="math">\(x^Tx/y\)</span></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.sigma_max" title="cvxpy.sigma_max"><tt class="xref py py-obj docutils literal"><span class="pre">sigma_max</span></tt></a>(A)</td>
+<td>Maximum singular value.</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">sum</span></tt>(X)</td>
+<td>Returns an expression representing the sum of the expression&#8217;s entries.</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">vstack</span></tt>(*args)</td>
+<td>Vertical concatenation</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.abs" title="cvxpy.abs"><tt class="xref py py-obj docutils literal"><span class="pre">abs</span></tt></a>(x)</td>
+<td>Elementwise absolute value</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.exp" title="cvxpy.exp"><tt class="xref py py-obj docutils literal"><span class="pre">exp</span></tt></a>(x)</td>
+<td>Elementwise <span class="math">\(e^{x}\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.inv_pos" title="cvxpy.inv_pos"><tt class="xref py py-obj docutils literal"><span class="pre">inv_pos</span></tt></a>(x)</td>
+<td>Elementwise 1/x, x &gt;= 0</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.log" title="cvxpy.log"><tt class="xref py py-obj docutils literal"><span class="pre">log</span></tt></a>(x)</td>
+<td>Elementwise <span class="math">\(\log x\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.max" title="cvxpy.max"><tt class="xref py py-obj docutils literal"><span class="pre">max</span></tt></a>(*args)</td>
+<td>Elementwise maximum.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.min" title="cvxpy.min"><tt class="xref py py-obj docutils literal"><span class="pre">min</span></tt></a>(*args)</td>
+<td>Elementwise minimum.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#cvxpy.sqrt" title="cvxpy.sqrt"><tt class="xref py py-obj docutils literal"><span class="pre">sqrt</span></tt></a>(x)</td>
+<td>Elementwise square root</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cvxpy.square" title="cvxpy.square"><tt class="xref py py-obj docutils literal"><span class="pre">square</span></tt></a>(x)</td>
+<td>Elementwise square</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="cvxpy.atoms.atom.Atom">
+<em class="property">class </em><tt class="descclassname">cvxpy.atoms.atom.</tt><tt class="descname">Atom</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class for atoms.</p>
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.argument_curvatures">
+<tt class="descname">argument_curvatures</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.argument_curvatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.argument_curvatures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.canonicalize">
+<tt class="descname">canonicalize</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.canonicalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.canonicalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="cvxpy.atoms.atom.Atom.dcp_curvature">
+<em class="property">static </em><tt class="descname">dcp_curvature</tt><big>(</big><em>curvature</em>, <em>args</em>, <em>monotonicities</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.dcp_curvature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.dcp_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.func_curvature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.graph_implementation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.init_dcp_attr">
+<tt class="descname">init_dcp_attr</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.init_dcp_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.init_dcp_attr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.monotonicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.name">
+<tt class="descname">name</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="cvxpy.atoms.atom.Atom.numpy_numeric">
+<em class="property">static </em><tt class="descname">numpy_numeric</tt><big>(</big><em>numeric_func</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.numpy_numeric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.numpy_numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.parameters">
+<tt class="descname">parameters</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the parameters present in the arguments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.validate_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cvxpy.atoms.atom.Atom.value">
+<tt class="descname">value</tt><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.atom.Atom.variables">
+<tt class="descname">variables</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/atoms/atom.html#Atom.variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.atoms.atom.Atom.variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the variables present in the arguments.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.geo_mean">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">geo_mean</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#cvxpy.geo_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Geometric mean of two scalars; <span class="math">\((x_1, \cdots, x_n)^{1/n}\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.geo_mean.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.geo_mean.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.geo_mean.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.geo_mean.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.geo_mean.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.geo_mean.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.geo_mean.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.geo_mean.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.lambda_max">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">lambda_max</tt><big>(</big><em>A</em><big>)</big><a class="headerlink" href="#cvxpy.lambda_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum eigenvalue; <span class="math">\(\lambda_{\max}(A)\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.lambda_max.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_max.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_max.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_max.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_max.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_max.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_max.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_max.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.lambda_min">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">lambda_min</tt><big>(</big><em>A</em><big>)</big><a class="headerlink" href="#cvxpy.lambda_min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miximum eigenvalue; <span class="math">\(\lambda_{\min}(A)\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.lambda_min.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_min.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_min.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_min.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_min.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_min.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.lambda_min.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.lambda_min.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.log_det">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">log_det</tt><big>(</big><em>A</em><big>)</big><a class="headerlink" href="#cvxpy.log_det" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(\log\det A\)</span></p>
+<dl class="method">
+<dt id="cvxpy.log_det.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_det.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_det.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.log_det.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the equivalent problem:</p>
+<div class="highlight-python"><pre>maximize    geo_mean(diag(D))
+subject to: D diagonal
+            diag(D) = diag(Z)
+            Z is upper triangular.
+            [D Z; Z.T A] is positive semidefinite</pre>
+</div>
+<p>The problem computes the LDL factorization:</p>
+<div class="math">
+\[A = (Z^TD^{-1})D(D^{-1}Z)\]</div>
+<p>This follows from the inequality:</p>
+<div class="math">
+\[\begin{split}\det(A) &gt;= \det(D) + \det([D, Z; Z^T, A])/\det(D)\end{split}\]</div>
+<p>and the fact that <span class="math">\(\det(Z) = \det(D)\)</span>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_det.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_det.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_det.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.log_det.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_det.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_det.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_det.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_det.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_det.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_det.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.log_sum_exp">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">log_sum_exp</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(\log\sum_i e^{x_i}\)</span></p>
+<dl class="method">
+<dt id="cvxpy.log_sum_exp.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_sum_exp.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_sum_exp.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_sum_exp.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_sum_exp.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log_sum_exp.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log_sum_exp.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.norm1">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">norm1</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.norm1" title="Permalink to this definition">¶</a></dt>
+<dd><p>L1 norm; <span class="math">\(\sum_i|x_i|\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.norm1.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm1.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm1.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.norm1.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm1.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm1.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm1.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.norm1.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm1.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm1.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm1.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm1.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.norm2">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">norm2</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.norm2" title="Permalink to this definition">¶</a></dt>
+<dd><p>L2 norm; <span class="math">\((\sum_i x_i^2)^{1/2}\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.norm2.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm2.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm2.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.norm2.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm2.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm2.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm2.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.norm2.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm2.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm2.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.norm2.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.norm2.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.normInf">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">normInf</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.normInf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Infinity norm; <span class="math">\(\max_i\{|x_i|, \dots, |x_n|\}\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.normInf.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normInf.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normInf.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.normInf.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normInf.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normInf.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normInf.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.normInf.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normInf.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normInf.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normInf.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normInf.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.normNuc">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">normNuc</tt><big>(</big><em>A</em><big>)</big><a class="headerlink" href="#cvxpy.normNuc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sum of the singular values.</p>
+<dl class="method">
+<dt id="cvxpy.normNuc.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normNuc.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normNuc.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.normNuc.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normNuc.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normNuc.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normNuc.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.normNuc.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normNuc.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normNuc.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.normNuc.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.normNuc.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="cvxpy.atoms.quad_form">
+<em class="property">static </em><tt class="descclassname">atoms.</tt><tt class="descname">quad_form</tt><big>(</big><em>x</em>, <em>P</em><big>)</big><a class="headerlink" href="#cvxpy.atoms.quad_form" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <span class="math">\(x^T P x\)</span>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.quad_over_lin">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">quad_over_lin</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(x^Tx/y\)</span></p>
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.quad_over_lin.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.quad_over_lin.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.sigma_max">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">sigma_max</tt><big>(</big><em>A</em><big>)</big><a class="headerlink" href="#cvxpy.sigma_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum singular value.</p>
+<dl class="method">
+<dt id="cvxpy.sigma_max.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sigma_max.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sigma_max.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.sigma_max.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sigma_max.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sigma_max.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sigma_max.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.sigma_max.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sigma_max.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sigma_max.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sigma_max.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sigma_max.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="affine">
+<h2>Affine<a class="headerlink" href="#affine" title="Permalink to this headline">¶</a></h2>
+<dl class="staticmethod">
+<dt id="cvxpy.atoms.sum">
+<em class="property">static </em><tt class="descclassname">atoms.</tt><tt class="descname">sum</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#cvxpy.atoms.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an expression representing the sum of the expression&#8217;s entries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : Expression</p>
+<blockquote>
+<div><p>An Expression.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Expession</strong> :</p>
+<blockquote class="last">
+<div><p>A scalar Expression.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.atoms.vstack">
+<em class="property">class </em><tt class="descclassname">cvxpy.atoms.</tt><tt class="descname">vstack</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#cvxpy.atoms.vstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertical concatenation</p>
+<dl class="method">
+<dt id="cvxpy.atoms.vstack.init_dcp_attr">
+<tt class="descname">init_dcp_attr</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.atoms.vstack.init_dcp_attr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.vstack.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.atoms.vstack.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.vstack.shape_from_args">
+<tt class="descname">shape_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.atoms.vstack.shape_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.vstack.sign_curv_from_args">
+<tt class="descname">sign_curv_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.atoms.vstack.sign_curv_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.atoms.vstack.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.atoms.vstack.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="element-wise">
+<h2>Element-wise<a class="headerlink" href="#element-wise" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cvxpy.abs">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">abs</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.abs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise absolute value</p>
+<dl class="method">
+<dt id="cvxpy.abs.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.abs.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.abs.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.abs.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.abs.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.abs.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.abs.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.abs.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.abs.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.abs.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.exp">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">exp</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.exp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise <span class="math">\(e^{x}\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.exp.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.exp.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.exp.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.exp.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.exp.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.exp.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.exp.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.exp.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.exp.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.exp.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.inv_pos">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">inv_pos</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.inv_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise 1/x, x &gt;= 0</p>
+<dl class="method">
+<dt id="cvxpy.inv_pos.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.inv_pos.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.inv_pos.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.inv_pos.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.inv_pos.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.inv_pos.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.inv_pos.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.inv_pos.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.inv_pos.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.inv_pos.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.log">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">log</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise <span class="math">\(\log x\)</span>.</p>
+<dl class="method">
+<dt id="cvxpy.log.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.log.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.log.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.log.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.log.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.max">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">max</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#cvxpy.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise maximum.</p>
+<dl class="method">
+<dt id="cvxpy.max.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.max.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.max.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.max.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.max.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.max.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.max.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.max.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.max.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.max.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.max.validate_arguments">
+<tt class="descname">validate_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.max.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.min">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">min</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#cvxpy.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise minimum.</p>
+<dl class="method">
+<dt id="cvxpy.min.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.min.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.min.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.min.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.min.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.min.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.min.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.min.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="cvxpy.atoms.elementwise.neg.neg">
+<em class="property">static </em><tt class="descclassname">neg.</tt><tt class="descname">neg</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.atoms.elementwise.neg.neg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for -min{x,0}.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="cvxpy.atoms.elementwise.pos.pos">
+<em class="property">static </em><tt class="descclassname">pos.</tt><tt class="descname">pos</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.atoms.elementwise.pos.pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for max{x,0}.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.sqrt">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">sqrt</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.sqrt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise square root</p>
+<dl class="method">
+<dt id="cvxpy.sqrt.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sqrt.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sqrt.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.sqrt.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sqrt.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sqrt.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sqrt.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.sqrt.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.sqrt.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.sqrt.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cvxpy.square">
+<em class="property">class </em><tt class="descclassname">cvxpy.</tt><tt class="descname">square</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#cvxpy.square" title="Permalink to this definition">¶</a></dt>
+<dd><p>Elementwise square</p>
+<dl class="method">
+<dt id="cvxpy.square.func_curvature">
+<tt class="descname">func_curvature</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.square.func_curvature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.square.graph_implementation">
+<tt class="descname">graph_implementation</tt><big>(</big><em>arg_objs</em><big>)</big><a class="headerlink" href="#cvxpy.square.graph_implementation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.square.monotonicity">
+<tt class="descname">monotonicity</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.square.monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.square.numeric">
+<tt class="descname">numeric</tt><big>(</big><em>values</em><big>)</big><a class="headerlink" href="#cvxpy.square.numeric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.square.sign_from_args">
+<tt class="descname">sign_from_args</tt><big>(</big><big>)</big><a class="headerlink" href="#cvxpy.square.sign_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../problems/index.html" title="Problems package – cvxpy.problems"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="API Reference"
+             >previous</a> |</li>
+        <li><a href="../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Steve Diamond, Eric Chu, Stephen Boyd.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+  </body>
+</html>

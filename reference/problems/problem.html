@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Problem module – cvxpy.problems.problem &mdash; CVXPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/f6.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CVXPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Problems package – cvxpy.problems" href="index.html" />
+    <link rel="next" title="Objective module – cvxpy.problems.objective" href="objective.html" />
+    <link rel="prev" title="Problems package – cvxpy.problems" href="index.html" /><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,300italic,400italic,600italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="objective.html" title="Objective module – cvxpy.problems.objective"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Problems package – cvxpy.problems"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API Reference</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Problems package &#8211; <tt class="docutils literal"><span class="pre">cvxpy.problems</span></tt></a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Problems package &#8211; <tt class="docutils literal"><span class="pre">cvxpy.problems</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="objective.html"
+                        title="next chapter">Objective module &#8211; <tt class="docutils literal"><span class="pre">cvxpy.problems.objective</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/reference/problems/problem.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="problem-module-cvxpy-problems-problem">
+<span id="cvxpy-problems-problem"></span><h1>Problem module &#8211; <tt class="xref py py-mod docutils literal"><span class="pre">cvxpy.problems.problem</span></tt><a class="headerlink" href="#problem-module-cvxpy-problems-problem" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cvxpy.problems.problem.Problem">
+<em class="property">class </em><tt class="descclassname">cvxpy.problems.problem.</tt><tt class="descname">Problem</tt><big>(</big><em>objective</em>, <em>constraints=None</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>A convex optimization problem.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="28%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>objective</td>
+<td>Minimize or Maximize</td>
+<td>The expression to minimize or maximize.</td>
+</tr>
+<tr class="row-even"><td>constraints</td>
+<td>list</td>
+<td>The constraints on the problem variables.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="cvxpy.problems.problem.Problem.REGISTERED_SOLVE_METHODS">
+<tt class="descname">REGISTERED_SOLVE_METHODS</tt><em class="property"> = {}</em><a class="headerlink" href="#cvxpy.problems.problem.Problem.REGISTERED_SOLVE_METHODS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.problems.problem.Problem.canonicalize">
+<tt class="descname">canonicalize</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.canonicalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.canonicalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the graph implementation of the problem.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tuple</strong> :</p>
+<blockquote class="last">
+<div><p>(affine objective, constraints list, the cone dimensions)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.problems.problem.Problem.is_dcp">
+<tt class="descname">is_dcp</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.is_dcp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.is_dcp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the problem satisfy DCP rules?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.problems.problem.Problem.parameters">
+<tt class="descname">parameters</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the parameters in the problem.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="cvxpy.problems.problem.Problem.register_solve">
+<em class="property">classmethod </em><tt class="descname">register_solve</tt><big>(</big><em>name</em>, <em>func</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.register_solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.register_solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a solve method to the Problem class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote>
+<div><p>The keyword for the method.</p>
+</div></blockquote>
+<p><strong>func</strong> : function</p>
+<blockquote class="last">
+<div><p>The function that executes the solve method.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.problems.problem.Problem.solve">
+<tt class="descname">solve</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solves the problem using the specified method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method</strong> : function</p>
+<blockquote>
+<div><p>The solve method to use.</p>
+</div></blockquote>
+<p><strong>solver</strong> : str, optional</p>
+<blockquote>
+<div><p>The solver to use. Defaults to ECOS.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool, optional</p>
+<blockquote>
+<div><p>Overrides the default of hiding solver output.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>float</strong> :</p>
+<blockquote class="last">
+<div><p>The optimal value for the problem, or a string indicating
+why the problem could not be solved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cvxpy.problems.problem.Problem.status">
+<tt class="descname">status</tt><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>The status from the last time the problem was solved.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>str</strong> :</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cvxpy.problems.problem.Problem.value">
+<tt class="descname">value</tt><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value from the last time the problem was solved.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>float or None</strong> :</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cvxpy.problems.problem.Problem.variables">
+<tt class="descname">variables</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/cvxpy/problems/problem.html#Problem.variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cvxpy.problems.problem.Problem.variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the variables in the problem.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="objective.html" title="Objective module – cvxpy.problems.objective"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Problems package – cvxpy.problems"
+             >previous</a> |</li>
+        <li><a href="../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API Reference</a> &raquo;</li>
+          <li><a href="index.html" >Problems package &#8211; <tt class="docutils literal"><span class="pre">cvxpy.problems</span></tt></a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Steve Diamond, Eric Chu, Stephen Boyd.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+  </body>
+</html>

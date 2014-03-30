@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cvxpy.problems.problem &mdash; CVXPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/f6.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CVXPY 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="cvxpy" href="../../cvxpy.html" /><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,300italic,400italic,600italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../cvxpy.html" accesskey="U">cvxpy</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cvxpy.problems.problem</h1><pre>
+"""
+Copyright 2013 Steven Diamond
+
+This file is part of CVXPY.
+
+CVXPY is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+CVXPY is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with CVXPY.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+"""
+
+from .. import settings as s
+from .. import utilities as u
+from .. import interface as intf
+from ..utilities.ordered_set import OrderedSet
+from ..expressions.expression import Expression
+from ..expressions.constants import Constant
+from ..expressions.variables import Variable
+from ..constraints import EqConstraint, LeqConstraint, \
+                          SOC, SDP, NonlinearConstraint
+from .objective import Minimize, Maximize
+from kktsolver import get_kktsolver
+
+from collections import OrderedDict
+import itertools
+import numbers
+import cvxopt
+import cvxopt.solvers
+import ecos
+import numpy as np
+import scipy.sparse as sp
+
+<div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem">[docs]</a>class Problem(u.Canonical):
+    """A convex optimization problem.
+
+    Attributes
+    ----------
+    objective : Minimize or Maximize
+        The expression to minimize or maximize.
+    constraints : list
+        The constraints on the problem variables.
+    """
+
+    # The solve methods available.
+    REGISTERED_SOLVE_METHODS = {}
+    # Interfaces for interacting with matrices.
+    _SPARSE_INTF = intf.DEFAULT_SPARSE_INTERFACE
+    _DENSE_INTF = intf.DEFAULT_INTERFACE
+    _CVXOPT_DENSE_INTF = intf.get_matrix_interface(cvxopt.matrix)
+    _CVXOPT_SPARSE_INTF = intf.get_matrix_interface(cvxopt.spmatrix)
+
+    def __init__(self, objective, constraints=None):
+        if constraints is None:
+            constraints = []
+        self.objective = objective
+        self.constraints = constraints
+        self._value = None
+        self._status = None
+
+    @property
+<div class="viewcode-block" id="Problem.value"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.value">[docs]</a>    def value(self):
+        """The value from the last time the problem was solved.
+
+        Returns
+        -------
+        float or None
+        """
+        return self._value
+</div>
+    @property
+<div class="viewcode-block" id="Problem.status"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.status">[docs]</a>    def status(self):
+        """The status from the last time the problem was solved.
+
+        Returns
+        -------
+        str
+        """
+        return self._status
+</div>
+<div class="viewcode-block" id="Problem.is_dcp"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.is_dcp">[docs]</a>    def is_dcp(self):
+        """Does the problem satisfy DCP rules?
+        """
+        return all(exp.is_dcp() for exp in self.constraints + [self.objective])
+</div>
+    def _filter_constraints(self, constraints):
+        """Separate the constraints by type.
+
+        Parameters
+        ----------
+        constraints : list
+            A list of constraints.
+
+        Returns
+        -------
+        dict
+            A map of type key to an ordered set of constraints.
+        """
+        constr_map = {s.EQ: OrderedSet([]),
+                      s.INEQ: OrderedSet([]),
+                      s.SOC: OrderedSet([]),
+                      s.SDP: OrderedSet([]),
+                      s.NONLIN: OrderedSet([])}
+        for c in constraints:
+            if isinstance(c, EqConstraint):
+                constr_map[s.EQ].add(c)
+            elif isinstance(c, LeqConstraint):
+                constr_map[s.INEQ].add(c)
+            elif isinstance(c, SOC):
+                constr_map[s.SOC].add(c)
+            elif isinstance(c, SDP):
+                constr_map[s.SDP].add(c)
+            elif isinstance(c, NonlinearConstraint):
+                constr_map[s.NONLIN].add(c)
+        return constr_map
+
+<div class="viewcode-block" id="Problem.canonicalize"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.canonicalize">[docs]</a>    def canonicalize(self):
+        """Computes the graph implementation of the problem.
+
+        Returns
+        -------
+        tuple
+            (affine objective, constraints list, the cone dimensions)
+        """
+        constraints = []
+        obj, constr = self.objective.canonical_form
+        constraints += constr
+        unique_constraints = list(OrderedSet(self.constraints))
+        for constr in unique_constraints:
+            constraints += constr.canonical_form[1]
+        constr_map = self._filter_constraints(constraints)
+        dims = {}
+        dims['l'] = sum(c.size[0]*c.size[1] for c in constr_map[s.INEQ])
+        # Formats SOC and SDP constraints for the solver.
+        for constr in itertools.chain(constr_map[s.SOC], constr_map[s.SDP]):
+            for ineq_constr in constr.format():
+                constr_map[s.INEQ].add(ineq_constr)
+        dims['q'] = [c.size[0] for c in constr_map[s.SOC]]
+        dims['s'] = [c.size[0] for c in constr_map[s.SDP]]
+        return (obj, constr_map, dims)
+</div>
+<div class="viewcode-block" id="Problem.variables"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.variables">[docs]</a>    def variables(self):
+        """Returns a list of the variables in the problem.
+        """
+        vars_ = self.objective.variables()
+        for constr in self.constraints:
+            vars_ += constr.variables()
+        # Remove duplicates.
+        return list(set(vars_))
+</div>
+<div class="viewcode-block" id="Problem.parameters"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.parameters">[docs]</a>    def parameters(self):
+        """Returns a list of the parameters in the problem.
+        """
+        params = self.objective.parameters()
+        for constr in self.constraints:
+            params += constr.parameters()
+        # Remove duplicates.
+        return list(set(params))
+</div>
+<div class="viewcode-block" id="Problem.solve"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.solve">[docs]</a>    def solve(self, *args, **kwargs):
+        """Solves the problem using the specified method.
+
+        Parameters
+        ----------
+        method : function
+            The solve method to use.
+        solver : str, optional
+            The solver to use. Defaults to ECOS.
+        verbose : bool, optional
+            Overrides the default of hiding solver output.
+
+        Returns
+        -------
+        float
+            The optimal value for the problem, or a string indicating
+            why the problem could not be solved.
+        """
+        func_name = kwargs.pop("method", None)
+        if func_name is not None:
+            func = Problem.REGISTERED_SOLVE_METHODS[func_name]
+            return func(self, *args, **kwargs)
+        else:
+            return self._solve(*args, **kwargs)
+</div>
+    @classmethod
+<div class="viewcode-block" id="Problem.register_solve"><a class="viewcode-back" href="../../../reference/problems/problem.html#cvxpy.problems.problem.Problem.register_solve">[docs]</a>    def register_solve(cls, name, func):
+        """Adds a solve method to the Problem class.
+
+        Parameters
+        ----------
+        name : str
+            The keyword for the method.
+        func : function
+            The function that executes the solve method.
+        """
+        cls.REGISTERED_SOLVE_METHODS[name] = func
+</div>
+    def _solve(self, solver=s.ECOS, ignore_dcp=False, verbose=False):
+        """Solves a DCP compliant optimization problem.
+
+        Saves the values of primal and dual variables in the variable
+        and constraint objects, respectively.
+
+        Parameters
+        ----------
+        solver : str, optional
+            The solver to use. Defaults to ECOS.
+        ignore_dcp : bool, optional
+            Overrides the default of raising an exception if the problem is not
+            DCP.
+        verbose : bool, optional
+            Overrides the default of hiding solver output.
+
+        Returns
+        -------
+        float
+            The optimal value for the problem, or a string indicating
+            why the problem could not be solved.
+        """
+        if not self.is_dcp():
+            if ignore_dcp:
+                print ("Problem does not follow DCP rules. "
+                       "Solving a convex relaxation.")
+            else:
+                raise Exception("Problem does not follow DCP rules.")
+        objective, constr_map, dims = self.canonicalize()
+
+        all_ineq = itertools.chain(constr_map[s.EQ], constr_map[s.INEQ])
+        var_info = self._get_var_offsets(objective, all_ineq)
+        sorted_vars, var_offsets, x_length = var_info
+
+        c, obj_offset = self._constr_matrix([objective], var_offsets, x_length,
+                                            self._DENSE_INTF,
+                                            self._DENSE_INTF)
+        # Convert obj_offset to a scalar.
+        obj_offset = self._DENSE_INTF.scalar_value(obj_offset)
+
+        A, b = self._constr_matrix(constr_map[s.EQ], var_offsets, x_length,
+                                   self._SPARSE_INTF, self._DENSE_INTF)
+        G, h = self._constr_matrix(constr_map[s.INEQ], var_offsets, x_length,
+                                   self._SPARSE_INTF, self._DENSE_INTF)
+
+        # Save original cvxopt solver options.
+        old_options = cvxopt.solvers.options
+        # Silence cvxopt if verbose is False.
+        cvxopt.solvers.options['show_progress'] = verbose
+        # Always do one step of iterative refinement after solving KKT system.
+        cvxopt.solvers.options['refinement'] = 1
+        # Target cvxopt solver if SDP or invalid for ECOS.
+        if solver == s.CVXOPT or len(dims['s']) &gt; 0 \
+            or min(G.shape) == 0 or constr_map[s.NONLIN]:
+            # Convert c,A,b,G,h to cvxopt matrices.
+            c, b, h = map(lambda vec:
+                self._CVXOPT_DENSE_INTF.const_to_matrix(vec,
+                    convert_scalars=True),
+                [c, b, h])
+            A, G = map(lambda mat:
+                self._CVXOPT_SPARSE_INTF.const_to_matrix(mat,
+                    convert_scalars=True),
+                [A, G])
+            # Target cvxopt clp if nonlinear constraints exist
+            if constr_map[s.NONLIN]:
+                # Get the nonlinear constraints.
+                F = self._merge_nonlin(constr_map[s.NONLIN], var_offsets,
+                                       x_length)
+                # Get custom kktsolver.
+                kktsolver = get_kktsolver(G, dims, A, F)
+                results = cvxopt.solvers.cpl(c.T, F, G, h, A=A, b=b,
+                                             dims=dims,kktsolver=kktsolver)
+            else:
+                # Get custom kktsolver.
+                kktsolver = get_kktsolver(G, dims, A)
+                results = cvxopt.solvers.conelp(c.T, G, h, A=A, b=b,
+                                                dims=dims, kktsolver=kktsolver)
+            status = s.SOLVER_STATUS[s.CVXOPT][results['status']]
+            primal_val = results['primal objective']
+        else: # If possible, target ECOS.
+            # Convert c,h,b to 1D arrays.
+            c, h, b = map(lambda mat: np.asarray(mat)[:, 0], [c.T, h, b])
+            results = ecos.solve(c, G, h, dims, A, b, verbose=verbose)
+            status = s.SOLVER_STATUS[s.ECOS][results['info']['exitFlag']]
+            primal_val = results['info']['pcost']
+
+        # Restore original cvxopt solver options.
+        cvxopt.solvers.options = old_options
+
+        if status == s.OPTIMAL:
+            self._save_values(results['x'], sorted_vars)
+            self._save_values(results['y'], constr_map[s.EQ])
+            if constr_map[s.NONLIN]:
+                self._save_values(results['zl'], constr_map[s.INEQ])
+            else:
+                self._save_values(results['z'], constr_map[s.INEQ])
+            self._value = self.objective._primal_to_result(
+                          primal_val - obj_offset)
+        else:
+            self._handle_failure(status, sorted_vars,
+                itertools.chain(constr_map[s.EQ], constr_map[s.INEQ]))
+        self._status = status
+        return self.value
+
+    def _handle_failure(self, status, variables, constraints):
+        """Updates value fields based on the cause of solver failure.
+
+        Parameters
+        ----------
+            status: str
+                The status of the solver.
+            variables: list
+                The problem variables.
+            constraints: list
+                The problem constraints.
+        """
+        # Set all primal and dual variable values to None.
+        for var_ in variables:
+            var_.save_value(None)
+        for constr in constraints:
+            constr.save_value(None)
+        # Set the problem value.
+        if status == s.INFEASIBLE:
+            self._value = self.objective._primal_to_result(np.inf)
+        elif status == s.UNBOUNDED:
+            self._value = self.objective._primal_to_result(-np.inf)
+        else: # Solver error
+            self._value = None
+
+    def _get_var_offsets(self, objective, constraints):
+        """Maps each variable to a horizontal offset.
+
+        Parameters
+        ----------
+        objective : Expression
+            The canonicalized objective.
+        constraints : list
+            The canonicalized constraints.
+
+        Returns
+        -------
+        tuple
+            (ordered list of variables, map of variable to offset,
+             length of variable vector)
+        """
+        vars_ = objective.variables()
+        for constr in constraints:
+            vars_ += constr.variables()
+        var_offsets = OrderedDict()
+        vert_offset = 0
+        # TODO Ensure the variables are always in the same
+        # order for the same problem.
+        var_names = [(v, v.id) for v in set(vars_)]
+        var_names.sort(key=lambda (var, var_id): var_id)
+        for var, var_id in var_names:
+            var_offsets[var_id] = vert_offset
+            vert_offset += var.size[0]*var.size[1]
+        # Return an ordered list of variables.
+        vars_ = [v for v, var_id in var_names]
+        return (vars_, var_offsets, vert_offset)
+
+    def _save_values(self, result_vec, objects):
+        """Saves the values of the optimal primal/dual variables.
+
+        Parameters
+        ----------
+        results_vec : array_like
+            A vector containing the variable values.
+        objects : list
+            The variables or constraints where the values will be stored.
+        """
+        if len(result_vec) &gt; 0:
+            # Cast to desired matrix type.
+            result_vec = self._DENSE_INTF.const_to_matrix(result_vec)
+        offset = 0
+        for obj in objects:
+            rows, cols = obj.size
+            # Handle scalars
+            if (rows,cols) == (1,1):
+                value = intf.index(result_vec, (offset, 0))
+            else:
+                value = self._DENSE_INTF.zeros(rows, cols)
+                self._DENSE_INTF.block_add(value,
+                    result_vec[offset:offset + rows*cols],
+                    0, 0, rows, cols)
+            obj.save_value(value)
+            offset += rows*cols
+
+    def _constr_matrix(self, aff_expressions, var_offsets, x_length,
+                       matrix_intf, vec_intf):
+        """Returns a matrix and vector representing a list of constraints.
+
+        In the matrix, each constraint is given a block of rows.
+        Each variable coefficient is inserted as a block with upper
+        left corner at matrix[variable offset, constraint offset].
+        The constant term in the constraint is added to the vector.
+
+        Parameters
+        ----------
+        aff_expressions : list
+            A list of affine expressions or constraints.
+        var_offsets : dict
+            A dict of variable id to horizontal offset.
+        x_length : int
+            The length of the x vector.
+        matrix_intf : interface
+            The matrix interface to use for creating the constraints matrix.
+        vec_intf : interface
+            The matrix interface to use for creating the constant vector.
+
+        Returns
+        -------
+        tuple
+            A (matrix, vector) tuple.
+        """
+
+        rows = sum([aff.size[0] * aff.size[1] for aff in aff_expressions])
+        cols = x_length
+        V, I, J = [], [], []
+        const_vec = vec_intf.zeros(rows, 1)
+        vert_offset = 0
+        for aff_exp in aff_expressions:
+            coefficients = aff_exp.coefficients()
+            for var, blocks in coefficients.items():
+                # Constant is not in var_offsets.
+                horiz_offset = var_offsets.get(var)
+                for col, block in enumerate(blocks):
+                    vert_start = vert_offset + col*aff_exp.size[0]
+                    vert_end = vert_start + aff_exp.size[0]
+                    if var is s.CONSTANT:
+                        # Convert the block to a dense column.
+                        block = self._DENSE_INTF.const_to_matrix(block)
+                        const_vec[vert_start:vert_end, :] = block
+                    else:
+                        if isinstance(block, numbers.Number):
+                            V.append(block)
+                            I.append(vert_start)
+                            J.append(horiz_offset)
+                        else:
+                            # Block is a numpy matrix or
+                            # scipy CSC sparse matrix.
+                            if isinstance(block, np.matrix):
+                                block = self._SPARSE_INTF.const_to_matrix(
+                                        block)
+                            block = block.tocoo()
+                            V.extend(block.data)
+                            I.extend(block.row + vert_start)
+                            J.extend(block.col + horiz_offset)
+            vert_offset += aff_exp.size[0]*aff_exp.size[1]
+
+        # Create the constraints matrix.
+        if len(V) &gt; 0:
+            matrix = sp.coo_matrix((V, (I, J)), (rows, cols))
+            # Convert the constraints matrix to the correct type.
+            matrix = matrix_intf.const_to_matrix(matrix, convert_scalars=True)
+        else: # Empty matrix.
+            matrix = matrix_intf.zeros(rows, cols)
+        return (matrix, -const_vec)
+
+    def _merge_nonlin(self, nl_constr, var_offsets, x_length):
+        """ TODO: ensure that this works with numpy data structs...
+        """
+        rows = sum([constr.size[0] * constr.size[1] for constr in nl_constr])
+        cols = x_length
+
+        big_x = self._CVXOPT_DENSE_INTF.zeros(cols, 1)
+        for constr in nl_constr:
+            constr.place_x0(big_x, var_offsets, self._CVXOPT_DENSE_INTF)
+
+        def F(x=None, z=None):
+            if x is None:
+                return rows, big_x
+            big_f = self._CVXOPT_DENSE_INTF.zeros(rows, 1)
+            big_Df = self._CVXOPT_SPARSE_INTF.zeros(rows, cols)
+            if z:
+                big_H = self._CVXOPT_SPARSE_INTF.zeros(cols, cols)
+
+            offset = 0
+            for constr in nl_constr:
+                local_x = constr.extract_variables(x, var_offsets,
+                                                   self._CVXOPT_DENSE_INTF)
+                if z:
+                    f, Df, H = constr.f(local_x,
+                                        z[offset:offset + constr.size[0]])
+                else:
+                    result = constr.f(local_x)
+                    if result:
+                        f, Df = result
+                    else:
+                        return None
+                big_f[offset:offset + constr.size[0]] = f
+                constr.place_Df(big_Df, Df, var_offsets,
+                                offset, self._CVXOPT_SPARSE_INTF)
+                if z:
+                    constr.place_H(big_H, H, var_offsets,
+                                   self._CVXOPT_SPARSE_INTF)
+                offset += constr.size[0]
+
+            if z is None:
+                return big_f, big_Df
+            return big_f, big_Df, big_H
+        return F
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        return "Problem(%s, %s)" % (repr(self.objective),
+                                    repr(self.constraints))</div>
+</pre>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../cvxpy.html" >cvxpy</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Steve Diamond, Eric Chu, Stephen Boyd.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+  </body>
+</html>

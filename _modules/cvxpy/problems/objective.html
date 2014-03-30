@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cvxpy.problems.objective &mdash; CVXPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/f6.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CVXPY 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="cvxpy" href="../../cvxpy.html" /><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,300italic,400italic,600italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../cvxpy.html" accesskey="U">cvxpy</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cvxpy.problems.objective</h1><pre>
+"""
+Copyright 2013 Steven Diamond
+
+This file is part of CVXPY.
+
+CVXPY is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+CVXPY is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with CVXPY.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+"""
+
+from .. import utilities as u
+from ..expressions.expression import Expression
+
+<div class="viewcode-block" id="Minimize"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Minimize">[docs]</a>class Minimize(u.Canonical):
+    """An optimization objective for minimization.
+    """
+
+    NAME = "minimize"
+
+    def __init__(self, expr):
+        self._expr = Expression.cast_to_const(expr)
+        # Validate that the objective resolves to a scalar.
+        if self._expr.size != (1, 1):
+            raise Exception("The objective '%s' must resolve to a scalar."
+                            % self)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, repr(self._expr))
+
+    def __str__(self):
+        return ' '.join([self.NAME, self._expr.name()])
+
+<div class="viewcode-block" id="Minimize.canonicalize"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Minimize.canonicalize">[docs]</a>    def canonicalize(self):
+        """Pass on the target expression's objective and constraints.
+        """
+        return self._expr.canonical_form
+</div>
+<div class="viewcode-block" id="Minimize.variables"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Minimize.variables">[docs]</a>    def variables(self):
+        """Returns the variables in the objective.
+        """
+        return self._expr.variables()
+</div>
+<div class="viewcode-block" id="Minimize.parameters"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Minimize.parameters">[docs]</a>    def parameters(self):
+        """Returns the parameters in the objective.
+        """
+        return self._expr.parameters()
+</div>
+<div class="viewcode-block" id="Minimize.is_dcp"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Minimize.is_dcp">[docs]</a>    def is_dcp(self):
+        """The objective must be convex.
+        """
+        return self._expr.is_convex()
+</div>
+    @property
+<div class="viewcode-block" id="Minimize.value"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Minimize.value">[docs]</a>    def value(self):
+        """The value of the objective expression.
+        """
+        return self._expr.value
+</div>
+    @staticmethod
+    def _primal_to_result(result):
+        """The value of the objective given the solver primal value.
+        """
+        return result
+</div>
+<div class="viewcode-block" id="Maximize"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Maximize">[docs]</a>class Maximize(Minimize):
+    """An optimization objective for maximization.
+    """
+
+    NAME = "maximize"
+
+<div class="viewcode-block" id="Maximize.canonicalize"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Maximize.canonicalize">[docs]</a>    def canonicalize(self):
+        obj, constraints = super(Maximize, self).canonicalize()
+        return (-obj, constraints)
+</div>
+<div class="viewcode-block" id="Maximize.is_dcp"><a class="viewcode-back" href="../../../reference/problems/objective.html#cvxpy.problems.objective.Maximize.is_dcp">[docs]</a>    def is_dcp(self):
+        """The objective must be concave.
+        """
+        return self._expr.is_concave()
+</div>
+    @staticmethod
+    def _primal_to_result(result):
+        """The value of the objective given the solver primal value.
+        """
+        return -result</div>
+</pre>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../cvxpy.html" >cvxpy</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Steve Diamond, Eric Chu, Stephen Boyd.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+  </body>
+</html>

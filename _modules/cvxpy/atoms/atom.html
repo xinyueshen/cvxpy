@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cvxpy.atoms.atom &mdash; CVXPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/f6.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CVXPY 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="cvxpy.atoms" href="../atoms.html" /><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,300italic,400italic,600italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../cvxpy.html" >cvxpy</a> &raquo;</li>
+          <li><a href="../atoms.html" accesskey="U">cvxpy.atoms</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cvxpy.atoms.atom</h1><pre>
+"""
+Copyright 2013 Steven Diamond
+
+This file is part of CVXPY.
+
+CVXPY is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+CVXPY is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with CVXPY.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+"""
+
+from .. import settings as s
+from .. import utilities as u
+from ..utilities import performance_utils as pu
+from .. import interface as intf
+from ..expressions.constants import Constant, ConstantAtom
+from ..expressions.variables import Variable
+from ..expressions.expression import Expression
+import abc
+
+<div class="viewcode-block" id="Atom"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom">[docs]</a>class Atom(Expression):
+    """ Abstract base class for atoms. """
+    __metaclass__ = abc.ABCMeta
+    # args are the expressions passed into the Atom constructor.
+    def __init__(self, *args):
+        # Throws error if args is empty.
+        if len(args) == 0:
+            raise TypeError(
+                "No arguments given to '%s'." % self.__class__.__name__
+            )
+        # Convert raw values to Constants.
+        self.args = [Atom.cast_to_const(arg) for arg in args]
+        self.validate_arguments()
+        self.init_dcp_attr()
+        self.subexpressions = self.args
+
+    # Returns the string representation of the function call.
+<div class="viewcode-block" id="Atom.name"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.name">[docs]</a>    def name(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join([arg.name() for arg in self.args]))
+
+    # Determines the curvature, sign, and shape from the arguments.</div>
+<div class="viewcode-block" id="Atom.init_dcp_attr"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.init_dcp_attr">[docs]</a>    def init_dcp_attr(self):
+        # Initialize _shape. Raises an error for invalid argument sizes.
+        shape = self.shape_from_args()
+        sign = self.sign_from_args()
+        curvature = Atom.dcp_curvature(self.func_curvature(),
+                                       self.args,
+                                       self.monotonicity())
+        self._dcp_attr = u.DCPAttr(sign, curvature, shape)
+
+    # Returns argument curvatures as a list.</div>
+<div class="viewcode-block" id="Atom.argument_curvatures"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.argument_curvatures">[docs]</a>    def argument_curvatures(self):
+        return [arg.curvature for arg in self.args]
+
+    # Raises an error if the arguments are invalid.</div>
+<div class="viewcode-block" id="Atom.validate_arguments"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.validate_arguments">[docs]</a>    def validate_arguments(self):
+        pass
+
+    # The curvature of the atom if all arguments conformed to DCP.
+    # Alternatively, the curvature of the atom's function.</div>
+    @abc.abstractmethod
+<div class="viewcode-block" id="Atom.func_curvature"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.func_curvature">[docs]</a>    def func_curvature(self):
+        return NotImplemented
+
+    # Returns a list with the monotonicity in each argument.
+    # monotonicity can depend on the sign of the argument.</div>
+    @abc.abstractmethod
+<div class="viewcode-block" id="Atom.monotonicity"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.monotonicity">[docs]</a>    def monotonicity(self):
+        return NotImplemented
+
+    # Applies DCP composition rules to determine curvature in each argument.
+    # The overall curvature is the sum of the argument curvatures.</div>
+    @staticmethod
+<div class="viewcode-block" id="Atom.dcp_curvature"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.dcp_curvature">[docs]</a>    def dcp_curvature(curvature, args, monotonicities):
+        if len(args) != len(monotonicities):
+            raise Exception('The number of args be'
+                            ' equal to the number of monotonicities.')
+        arg_curvatures = []
+        for arg, monotonicity in zip(args,monotonicities):
+            arg_curv = u.monotonicity.dcp_curvature(monotonicity, curvature,
+                                                    arg._dcp_attr.sign,
+                                                    arg._dcp_attr.curvature)
+            arg_curvatures.append(arg_curv)
+        return reduce(lambda x,y: x+y, arg_curvatures)
+
+    # Represent the atom as an affine objective and affine/basic SOC constraints.</div>
+<div class="viewcode-block" id="Atom.canonicalize"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.canonicalize">[docs]</a>    def canonicalize(self):
+        # Constant atoms are treated as a leaf.
+        if self.is_constant():
+            return ConstantAtom(self).canonical_form
+        else:
+            arg_objs = []
+            constraints = []
+            for arg in self.args:
+                obj, constr = arg.canonical_form
+                arg_objs.append(obj)
+                constraints += constr
+            graph_obj,graph_constr = self.graph_implementation(arg_objs)
+            return (graph_obj, constraints + graph_constr)
+
+    # Returns an affine expression and list of
+    # constraints equivalent to the atom.
+    # arg_objs - the canonical objectives of the arguments.</div>
+    @abc.abstractmethod
+<div class="viewcode-block" id="Atom.graph_implementation"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.graph_implementation">[docs]</a>    def graph_implementation(self, arg_objs):
+        return NotImplemented
+</div>
+<div class="viewcode-block" id="Atom.variables"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.variables">[docs]</a>    def variables(self):
+        """Returns all the variables present in the arguments.
+        """
+        var_list = []
+        for arg in self.args:
+            var_list += arg.variables()
+        # Remove duplicates.
+        return list(set(var_list))
+</div>
+<div class="viewcode-block" id="Atom.parameters"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.parameters">[docs]</a>    def parameters(self):
+        """Returns all the parameters present in the arguments.
+        """
+        param_list = []
+        for arg in self.args:
+            param_list += arg.parameters()
+        # Remove duplicates.
+        return list(set(param_list))
+</div>
+    @property
+<div class="viewcode-block" id="Atom.value"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.value">[docs]</a>    def value(self):
+        # Catch the case when the expression is known to be
+        # zero through DCP analysis.
+        if self.is_zero():
+            result = intf.DEFAULT_INTERFACE.zeros(*self.size)
+        else:
+            arg_values = []
+            for arg in self.args:
+                # A argument without a value makes all higher level
+                # values None.
+                if arg.value is None:
+                    return None
+                else:
+                    arg_values.append(arg.value)
+            result = self.numeric(arg_values)
+        # Reduce to a scalar if possible.
+        if intf.size(result) == (1, 1):
+            return intf.scalar_value(result)
+        else:
+            return result
+
+    # Wraps an atom's numeric function that requires numpy ndarrays as input.
+    # Ensures both inputs and outputs are the correct matrix types.</div>
+    @staticmethod
+<div class="viewcode-block" id="Atom.numpy_numeric"><a class="viewcode-back" href="../../../reference/atoms/index.html#cvxpy.atoms.atom.Atom.numpy_numeric">[docs]</a>    def numpy_numeric(numeric_func):
+        def new_numeric(self, values):
+            interface = intf.DEFAULT_INTERFACE
+            values = [interface.const_to_matrix(v, convert_scalars=True)
+                      for v in values]
+            result = numeric_func(self, values)
+            return intf.DEFAULT_SPARSE_INTERFACE.const_to_matrix(result)
+        return new_numeric</div></div>
+</pre>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../../index.html">CVXPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../cvxpy.html" >cvxpy</a> &raquo;</li>
+          <li><a href="../atoms.html" >cvxpy.atoms</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Steve Diamond, Eric Chu, Stephen Boyd.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+  </body>
+</html>
