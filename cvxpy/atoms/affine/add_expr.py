@@ -23,6 +23,7 @@ from cvxpy.expressions.constants import Constant
 import cvxpy.interface as intf
 import cvxpy.lin_ops.lin_utils as lu
 import operator as op
+from functools import reduce
 
 class AddExpression(AffAtom):
     """The sum of any number of expressions.
@@ -46,7 +47,7 @@ class AddExpression(AffAtom):
 
     def name(self):
         result = str(self.args[0])
-        for i in xrange(1, len(self.args)):
+        for i in range(1, len(self.args)):
             result += " + " + str(self.args[i])
         return result
 

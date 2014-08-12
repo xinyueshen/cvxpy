@@ -160,15 +160,15 @@ def check_solver(prob, solver):
 # Tests numeric version of atoms.
 def run_atom(atom, problem, obj_val, solver):
     assert problem.is_dcp()
-    print problem.objective
-    print problem.constraints
+    print(problem.objective)
+    print(problem.constraints)
     if check_solver(problem, solver):
-        print "solver", solver
+        print("solver", solver)
         tolerance = SOLVER_TO_TOL[solver]
         result = problem.solve(solver=solver)
         if problem.status is OPTIMAL:
-            print result
-            print obj_val
+            print(result)
+            print(obj_val)
             assert( -tolerance <= result - obj_val <= tolerance )
         else:
             assert (atom, solver) in KNOWN_SOLVER_ERRORS
@@ -176,8 +176,8 @@ def run_atom(atom, problem, obj_val, solver):
 def test_atom():
     for atom_list, objective_type in atoms:
         for atom, size, args, obj_val in atom_list:
-            for row in xrange(size[0]):
-                for col in xrange(size[1]):
+            for row in range(size[0]):
+                for col in range(size[1]):
                     for solver in [ECOS, SCS, CVXOPT]:
                         # Atoms with Constant arguments.
                         yield (run_atom,

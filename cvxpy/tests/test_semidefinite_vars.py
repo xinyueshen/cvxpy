@@ -21,7 +21,7 @@ from cvxpy import *
 from cvxpy.expressions.variables import semidefinite
 from cvxopt import matrix
 import numpy as np
-from base_test import BaseTest
+from .base_test import BaseTest
 import unittest
 
 def diag(X):
@@ -78,7 +78,7 @@ class TestSemidefiniteVariable(BaseTest):
                        square(self.X[1,1] - 4))
         p = Problem(obj,[])
         result = p.solve()
-        print self.X.value
+        print(self.X.value)
         self.assertAlmostEqual(result, 0)
 
         self.assertAlmostEqual(self.X.value[0,0], 1, places=3)

@@ -20,8 +20,8 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 import cvxpy.interface as intf
 from cvxpy.expressions.expression import Expression
 from cvxpy.expressions.constants import Constant
-from norm import norm
-from elementwise.square import square
+from .norm import norm
+from .elementwise.square import square
 from scipy import linalg as LA
 import numpy as np
 
@@ -67,7 +67,7 @@ def _decomp_quad(P, cond=None, rcond=None, lower=True, check_finite=True):
     w, V = LA.eigh(P, lower=lower, check_finite=check_finite)
     abs_w = np.absolute(w)
     sgn_w = np.sign(w)
-    scale, sgn = max(zip(np.absolute(w), np.sign(w)))
+    scale, sgn = max(list(zip(np.absolute(w), np.sign(w))))
     if rcond is not None:
         cond = rcond
     if cond in (None, -1):
@@ -86,7 +86,7 @@ def quad_form(x, P):
     """ Alias for :math:`x^T P x`.
 
     """
-    x, P = map(Expression.cast_to_const, (x,P))
+    x, P = list(map(Expression.cast_to_const, (x,P)))
     # Check dimensions.
     n = P.size[0]
     if P.size[1] != n or x.size != (n,1):

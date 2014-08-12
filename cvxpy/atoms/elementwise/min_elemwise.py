@@ -22,6 +22,7 @@ import cvxpy.lin_ops.lin_utils as lu
 from cvxpy.atoms.elementwise.elementwise import Elementwise
 from cvxpy.atoms.elementwise.max_elemwise import max_elemwise
 import numpy as np
+from functools import reduce
 
 class min_elemwise(max_elemwise):
     """ Elementwise minimum. """

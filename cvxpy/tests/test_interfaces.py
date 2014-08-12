@@ -34,40 +34,40 @@ class TestInterfaces(unittest.TestCase):
         """Test sign for a given interface.
         """
         mat = interface.const_to_matrix([[1,2,3,4],[3,4,5,6]])
-        self.assertEquals(intf.sign(mat), Sign.POSITIVE)
-        self.assertEquals(intf.sign(-mat), Sign.NEGATIVE)
-        self.assertEquals(intf.sign(0*mat), Sign.ZERO)
+        self.assertEqual(intf.sign(mat), Sign.POSITIVE)
+        self.assertEqual(intf.sign(-mat), Sign.NEGATIVE)
+        self.assertEqual(intf.sign(0*mat), Sign.ZERO)
         mat = interface.const_to_matrix([[-1,2,3,4],[3,4,5,6]])
-        self.assertEquals(intf.sign(mat), Sign.UNKNOWN)
+        self.assertEqual(intf.sign(mat), Sign.UNKNOWN)
 
     # Test cvxopt dense interface.
     def test_cvxopt_dense(self):
         interface = intf.get_matrix_interface(cvxopt.matrix)
         # const_to_matrix
         mat = interface.const_to_matrix([1,2,3])
-        self.assertEquals(interface.size(mat), (3,1))
+        self.assertEqual(interface.size(mat), (3,1))
         sp_mat = sp.coo_matrix(([1,2], ([3,4], [2,1])), (5, 5))
         mat = interface.const_to_matrix(sp_mat)
-        self.assertEquals(interface.size(mat), (5,5))
+        self.assertEqual(interface.size(mat), (5,5))
         # identity
         mat = interface.identity(4)
         cmp_mat = interface.const_to_matrix(np.eye(4))
-        self.assertEquals(type(mat), type(cmp_mat))
-        self.assertEquals(interface.size(mat), interface.size(cmp_mat))
+        self.assertEqual(type(mat), type(cmp_mat))
+        self.assertEqual(interface.size(mat), interface.size(cmp_mat))
         assert not mat - cmp_mat
         # scalar_matrix
         mat = interface.scalar_matrix(2,4,3)
-        self.assertEquals(interface.size(mat), (4,3))
-        self.assertEquals(interface.index(mat, (1,2)), 2)
+        self.assertEqual(interface.size(mat), (4,3))
+        self.assertEqual(interface.index(mat, (1,2)), 2)
         # reshape
         mat = interface.const_to_matrix([[1,2,3],[3,4,5]])
         mat = interface.reshape(mat, (6,1))
-        self.assertEquals(interface.index(mat, (4,0)), 4)
+        self.assertEqual(interface.index(mat, (4,0)), 4)
         # index
         mat = interface.const_to_matrix([[1,2,3,4],[3,4,5,6]])
-        self.assertEquals( interface.index(mat, (0,1)), 3)
+        self.assertEqual( interface.index(mat, (0,1)), 3)
         mat = interface.index(mat, (slice(1,4,2), slice(0,2,None)))
-        self.assertEquals(list(mat), [2,4,4,6])
+        self.assertEqual(list(mat), [2,4,4,6])
         # Sign
         self.sign_for_intf(interface)
 
@@ -76,31 +76,31 @@ class TestInterfaces(unittest.TestCase):
         interface = intf.get_matrix_interface(cvxopt.spmatrix)
         # const_to_matrix
         mat = interface.const_to_matrix([1,2,3])
-        self.assertEquals(interface.size(mat), (3,1))
+        self.assertEqual(interface.size(mat), (3,1))
         # identity
         mat = interface.identity(4)
         cmp_mat = interface.const_to_matrix(np.eye(4))
-        self.assertEquals(interface.size(mat), interface.size(cmp_mat))
+        self.assertEqual(interface.size(mat), interface.size(cmp_mat))
         assert not mat - cmp_mat
         assert intf.is_sparse(mat)
         # scalar_matrix
         mat = interface.scalar_matrix(2,4,3)
-        self.assertEquals(interface.size(mat), (4,3))
-        self.assertEquals(interface.index(mat, (1,2)), 2)
+        self.assertEqual(interface.size(mat), (4,3))
+        self.assertEqual(interface.index(mat, (1,2)), 2)
         # reshape
         mat = interface.const_to_matrix([[1,2,3],[3,4,5]])
         mat = interface.reshape(mat, (6,1))
-        self.assertEquals(interface.index(mat, (4,0)), 4)
+        self.assertEqual(interface.index(mat, (4,0)), 4)
         # Test scalars.
         scalar = interface.scalar_matrix(1, 1, 1)
-        self.assertEquals(type(scalar), cvxopt.spmatrix)
+        self.assertEqual(type(scalar), cvxopt.spmatrix)
         scalar = interface.scalar_matrix(1, 1, 3)
-        self.assertEquals(scalar.size, (1,3))
+        self.assertEqual(scalar.size, (1,3))
         # index
         mat = interface.const_to_matrix([[1,2,3,4],[3,4,5,6]])
-        self.assertEquals( interface.index(mat, (0,1)), 3)
+        self.assertEqual( interface.index(mat, (0,1)), 3)
         mat = interface.index(mat, (slice(1,4,2), slice(0,2,None)))
-        self.assertEquals(list(mat), [2,4,4,6])
+        self.assertEqual(list(mat), [2,4,4,6])
         # Sign
         self.sign_for_intf(interface)
 
@@ -109,9 +109,9 @@ class TestInterfaces(unittest.TestCase):
         interface = intf.get_matrix_interface(np.ndarray)
         # const_to_matrix
         mat = interface.const_to_matrix([1,2,3])
-        self.assertEquals(interface.size(mat), (3,1))
+        self.assertEqual(interface.size(mat), (3,1))
         mat = interface.const_to_matrix([1,2])
-        self.assertEquals(interface.size(mat), (2,1))
+        self.assertEqual(interface.size(mat), (2,1))
         # CVXOPT sparse conversion
         tmp = intf.get_matrix_interface(cvxopt.spmatrix).const_to_matrix([1,2,3])
         mat = interface.const_to_matrix(tmp)
@@ -120,21 +120,21 @@ class TestInterfaces(unittest.TestCase):
         mat = interface.identity(4)
         cvxopt_dense = intf.get_matrix_interface(cvxopt.matrix)
         cmp_mat = interface.const_to_matrix(cvxopt_dense.identity(4))
-        self.assertEquals(interface.size(mat), interface.size(cmp_mat))
+        self.assertEqual(interface.size(mat), interface.size(cmp_mat))
         assert (mat == cmp_mat).all()
         # scalar_matrix
         mat = interface.scalar_matrix(2,4,3)
-        self.assertEquals(interface.size(mat), (4,3))
-        self.assertEquals(interface.index(mat, (1,2)), 2)
+        self.assertEqual(interface.size(mat), (4,3))
+        self.assertEqual(interface.index(mat, (1,2)), 2)
         # reshape
         mat = interface.const_to_matrix([[1,2,3],[3,4,5]])
         mat = interface.reshape(mat, (6,1))
-        self.assertEquals(interface.index(mat, (4,0)), 4)
+        self.assertEqual(interface.index(mat, (4,0)), 4)
         # index
         mat = interface.const_to_matrix([[1,2,3,4],[3,4,5,6]])
-        self.assertEquals( interface.index(mat, (0,1)), 3)
+        self.assertEqual( interface.index(mat, (0,1)), 3)
         mat = interface.index(mat, (slice(1,4,2), slice(0,2,None)))
-        self.assertEquals(list(mat.flatten('C')), [2,4,4,6])
+        self.assertEqual(list(mat.flatten('C')), [2,4,4,6])
         # Scalars and matrices.
         scalar = interface.const_to_matrix(2)
         mat = interface.const_to_matrix([1,2,3])
@@ -148,26 +148,26 @@ class TestInterfaces(unittest.TestCase):
         interface = intf.get_matrix_interface(np.matrix)
         # const_to_matrix
         mat = interface.const_to_matrix([1,2,3])
-        self.assertEquals(interface.size(mat), (3,1))
+        self.assertEqual(interface.size(mat), (3,1))
         mat = interface.const_to_matrix([[1],[2],[3]])
-        self.assertEquals(mat[0,0], 1)
+        self.assertEqual(mat[0,0], 1)
         # identity
         mat = interface.identity(4)
         cvxopt_dense = intf.get_matrix_interface(cvxopt.matrix)
         cmp_mat = interface.const_to_matrix(cvxopt_dense.identity(4))
-        self.assertEquals(interface.size(mat), interface.size(cmp_mat))
+        self.assertEqual(interface.size(mat), interface.size(cmp_mat))
         assert not (mat - cmp_mat).any()
         # scalar_matrix
         mat = interface.scalar_matrix(2,4,3)
-        self.assertEquals(interface.size(mat), (4,3))
-        self.assertEquals(interface.index(mat, (1,2)), 2)
+        self.assertEqual(interface.size(mat), (4,3))
+        self.assertEqual(interface.index(mat, (1,2)), 2)
         # reshape
         mat = interface.const_to_matrix([[1,2,3],[3,4,5]])
         mat = interface.reshape(mat, (6,1))
-        self.assertEquals(interface.index(mat, (4,0)), 4)
+        self.assertEqual(interface.index(mat, (4,0)), 4)
         # index
         mat = interface.const_to_matrix([[1,2,3,4],[3,4,5,6]])
-        self.assertEquals( interface.index(mat, (0,1)), 3)
+        self.assertEqual( interface.index(mat, (0,1)), 3)
         mat = interface.index(mat, (slice(1,4,2), slice(0,2,None)))
         assert not (mat - np.matrix("2 4; 4 6")).any()
         # Sign
@@ -178,31 +178,31 @@ class TestInterfaces(unittest.TestCase):
         interface = intf.get_matrix_interface(sp.csc_matrix)
         # const_to_matrix
         mat = interface.const_to_matrix([1,2,3])
-        self.assertEquals(interface.size(mat), (3,1))
+        self.assertEqual(interface.size(mat), (3,1))
         C = cvxopt.spmatrix([1,1,1,1,1],[0,1,2,0,0,],[0,0,0,1,2])
         mat = interface.const_to_matrix(C)
-        self.assertEquals(interface.size(mat), (3, 3))
+        self.assertEqual(interface.size(mat), (3, 3))
         # identity
         mat = interface.identity(4)
         cmp_mat = interface.const_to_matrix(np.eye(4))
-        self.assertEquals(interface.size(mat), interface.size(cmp_mat))
+        self.assertEqual(interface.size(mat), interface.size(cmp_mat))
         assert (mat - cmp_mat).nnz == 0
         # scalar_matrix
         mat = interface.scalar_matrix(2,4,3)
-        self.assertEquals(interface.size(mat), (4,3))
-        self.assertEquals(interface.index(mat, (1,2)), 2)
+        self.assertEqual(interface.size(mat), (4,3))
+        self.assertEqual(interface.index(mat, (1,2)), 2)
         # reshape
         mat = interface.const_to_matrix([[1,2,3],[3,4,5]])
         mat = interface.reshape(mat, (6,1))
-        self.assertEquals(interface.index(mat, (4,0)), 4)
+        self.assertEqual(interface.index(mat, (4,0)), 4)
         # Test scalars.
         scalar = interface.scalar_matrix(1, 1, 1)
-        self.assertEquals(type(scalar), np.ndarray)
+        self.assertEqual(type(scalar), np.ndarray)
         scalar = interface.scalar_matrix(1, 1, 3)
-        self.assertEquals(scalar.shape, (1,3))
+        self.assertEqual(scalar.shape, (1,3))
         # index
         mat = interface.const_to_matrix([[1,2,3,4],[3,4,5,6]])
-        self.assertEquals( interface.index(mat, (0,1)), 3)
+        self.assertEqual( interface.index(mat, (0,1)), 3)
         mat = interface.index(mat, (slice(1,4,2), slice(0,2,None)))
         assert not (mat - np.matrix("2 4; 4 6")).any()
         # scalar value

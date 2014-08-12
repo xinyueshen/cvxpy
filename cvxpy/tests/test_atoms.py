@@ -49,41 +49,41 @@ class TestAtoms(unittest.TestCase):
         exp = self.x+self.y
         atom = normInf(exp)
         # self.assertEquals(atom.name(), "normInf(x + y)")
-        self.assertEquals(atom.size, (1,1))
-        self.assertEquals(atom.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(atom.size, (1,1))
+        self.assertEqual(atom.curvature, u.Curvature.CONVEX_KEY)
         assert atom.is_convex()
         assert (-atom).is_concave()
-        self.assertEquals(normInf(atom).curvature, u.Curvature.CONVEX_KEY)
-        self.assertEquals(normInf(-atom).curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(normInf(atom).curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(normInf(-atom).curvature, u.Curvature.CONVEX_KEY)
 
     # Test the norm1 class.
     def test_norm1(self):
         exp = self.x+self.y
         atom = norm1(exp)
         # self.assertEquals(atom.name(), "norm1(x + y)")
-        self.assertEquals(atom.size, (1,1))
-        self.assertEquals(atom.curvature, u.Curvature.CONVEX_KEY)
-        self.assertEquals(norm1(atom).curvature, u.Curvature.CONVEX_KEY)
-        self.assertEquals(norm1(-atom).curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(atom.size, (1,1))
+        self.assertEqual(atom.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(norm1(atom).curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(norm1(-atom).curvature, u.Curvature.CONVEX_KEY)
 
     # Test the norm2 class.
     def test_norm2(self):
         exp = self.x+self.y
         atom = norm2(exp)
         # self.assertEquals(atom.name(), "norm2(x + y)")
-        self.assertEquals(atom.size, (1,1))
-        self.assertEquals(atom.curvature, u.Curvature.CONVEX_KEY)
-        self.assertEquals(norm2(atom).curvature, u.Curvature.CONVEX_KEY)
-        self.assertEquals(norm2(-atom).curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(atom.size, (1,1))
+        self.assertEqual(atom.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(norm2(atom).curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(norm2(-atom).curvature, u.Curvature.CONVEX_KEY)
 
     def test_quad_over_lin(self):
         # Test quad_over_lin DCP.
         atom = quad_over_lin(square(self.x), self.a)
-        self.assertEquals(atom.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(atom.curvature, u.Curvature.CONVEX_KEY)
         atom = quad_over_lin(-square(self.x), self.a)
-        self.assertEquals(atom.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(atom.curvature, u.Curvature.CONVEX_KEY)
         atom = quad_over_lin(sqrt(self.x), self.a)
-        self.assertEquals(atom.curvature, u.Curvature.UNKNOWN_KEY)
+        self.assertEqual(atom.curvature, u.Curvature.UNKNOWN_KEY)
         assert not atom.is_dcp()
 
         # Test quad_over_lin size validation.
@@ -109,8 +109,8 @@ class TestAtoms(unittest.TestCase):
         """Test for the matrix_frac atom.
         """
         atom = matrix_frac(self.x, self.A)
-        self.assertEquals(atom.size, (1,1))
-        self.assertEquals(atom.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(atom.size, (1,1))
+        self.assertEqual(atom.curvature, u.Curvature.CONVEX_KEY)
         # Test matrix_frac size validation.
         with self.assertRaises(Exception) as cm:
             matrix_frac(self.x, self.C)
@@ -131,105 +131,105 @@ class TestAtoms(unittest.TestCase):
         """Test sign for max_entries.
         """
         # One arg.
-        self.assertEquals(max_entries(1).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(max_entries(-2).sign, u.Sign.NEGATIVE_KEY)
-        self.assertEquals(max_entries(Variable()).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(max_entries(0).sign, u.Sign.ZERO_KEY)
+        self.assertEqual(max_entries(1).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(max_entries(-2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(max_entries(Variable()).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(max_entries(0).sign, u.Sign.ZERO_KEY)
 
     def test_min_entries_sign(self):
         """Test sign for min_entries.
         """
         # One arg.
-        self.assertEquals(min_entries(1).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(min_entries(-2).sign, u.Sign.NEGATIVE_KEY)
-        self.assertEquals(min_entries(Variable()).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(min_entries(0).sign, u.Sign.ZERO_KEY)
+        self.assertEqual(min_entries(1).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(min_entries(-2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(min_entries(Variable()).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(min_entries(0).sign, u.Sign.ZERO_KEY)
 
     # Test sign logic for max_elemwise.
     def test_max_elemwise_sign(self):
         # Two args.
-        self.assertEquals(max_elemwise(1, 2).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(max_elemwise(1, Variable()).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(max_elemwise(1, -2).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(max_elemwise(1, 0).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(max_elemwise(1, 2).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(max_elemwise(1, Variable()).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(max_elemwise(1, -2).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(max_elemwise(1, 0).sign, u.Sign.POSITIVE_KEY)
 
-        self.assertEquals(max_elemwise(Variable(), 0).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(max_elemwise(Variable(), Variable()).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(max_elemwise(Variable(), -2).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(max_elemwise(Variable(), 0).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(max_elemwise(Variable(), Variable()).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(max_elemwise(Variable(), -2).sign, u.Sign.UNKNOWN_KEY)
 
-        self.assertEquals(max_elemwise(0, 0).sign, u.Sign.ZERO_KEY)
-        self.assertEquals(max_elemwise(0, -2).sign, u.Sign.ZERO_KEY)
+        self.assertEqual(max_elemwise(0, 0).sign, u.Sign.ZERO_KEY)
+        self.assertEqual(max_elemwise(0, -2).sign, u.Sign.ZERO_KEY)
 
-        self.assertEquals(max_elemwise(-3, -2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(max_elemwise(-3, -2).sign, u.Sign.NEGATIVE_KEY)
 
         # Many args.
-        self.assertEquals(max_elemwise(-2, Variable(), 0, -1, Variable(), 1).sign,
+        self.assertEqual(max_elemwise(-2, Variable(), 0, -1, Variable(), 1).sign,
                           u.Sign.POSITIVE_KEY)
 
         # Promotion.
-        self.assertEquals(max_elemwise(1, Variable(2)).sign,
+        self.assertEqual(max_elemwise(1, Variable(2)).sign,
                           u.Sign.POSITIVE_KEY)
-        self.assertEquals(max_elemwise(1, Variable(2)).size,
+        self.assertEqual(max_elemwise(1, Variable(2)).size,
                           (2, 1))
 
     # Test sign logic for min_elemwise.
     def test_min_elemwise_sign(self):
         # Two args.
-        self.assertEquals(min_elemwise(1, 2).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(min_elemwise(1, Variable()).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(min_elemwise(1, -2).sign, u.Sign.NEGATIVE_KEY)
-        self.assertEquals(min_elemwise(1, 0).sign, u.Sign.ZERO_KEY)
+        self.assertEqual(min_elemwise(1, 2).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(min_elemwise(1, Variable()).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(min_elemwise(1, -2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(min_elemwise(1, 0).sign, u.Sign.ZERO_KEY)
 
-        self.assertEquals(min_elemwise(Variable(), 0).sign, u.Sign.NEGATIVE_KEY)
-        self.assertEquals(min_elemwise(Variable(), Variable()).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(min_elemwise(Variable(), -2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(min_elemwise(Variable(), 0).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(min_elemwise(Variable(), Variable()).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(min_elemwise(Variable(), -2).sign, u.Sign.NEGATIVE_KEY)
 
-        self.assertEquals(min_elemwise(0, 0).sign, u.Sign.ZERO_KEY)
-        self.assertEquals(min_elemwise(0, -2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(min_elemwise(0, 0).sign, u.Sign.ZERO_KEY)
+        self.assertEqual(min_elemwise(0, -2).sign, u.Sign.NEGATIVE_KEY)
 
-        self.assertEquals(min_elemwise(-3, -2).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(min_elemwise(-3, -2).sign, u.Sign.NEGATIVE_KEY)
 
         # Many args.
-        self.assertEquals(min_elemwise(-2, Variable(), 0, -1, Variable(), 1).sign,
+        self.assertEqual(min_elemwise(-2, Variable(), 0, -1, Variable(), 1).sign,
                           u.Sign.NEGATIVE_KEY)
 
         # Promotion.
-        self.assertEquals(min_elemwise(-1, Variable(2)).sign,
+        self.assertEqual(min_elemwise(-1, Variable(2)).sign,
                           u.Sign.NEGATIVE_KEY)
-        self.assertEquals(min_elemwise(-1, Variable(2)).size,
+        self.assertEqual(min_elemwise(-1, Variable(2)).size,
                           (2, 1))
 
     def test_sum_entries(self):
         """Test the sum_entries atom.
         """
-        self.assertEquals(sum_entries(1).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(sum_entries([1, -1]).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(sum_entries([1, -1]).curvature, u.Curvature.CONSTANT_KEY)
-        self.assertEquals(sum_entries(Variable(2)).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(sum_entries(Variable(2)).size, (1, 1))
-        self.assertEquals(sum_entries(Variable(2)).curvature, u.Curvature.AFFINE_KEY)
+        self.assertEqual(sum_entries(1).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(sum_entries([1, -1]).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(sum_entries([1, -1]).curvature, u.Curvature.CONSTANT_KEY)
+        self.assertEqual(sum_entries(Variable(2)).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(sum_entries(Variable(2)).size, (1, 1))
+        self.assertEqual(sum_entries(Variable(2)).curvature, u.Curvature.AFFINE_KEY)
         # Mixed curvature.
         mat = np.mat("1 -1")
-        self.assertEquals(sum_entries(mat*square(Variable(2))).curvature, u.Curvature.UNKNOWN_KEY)
+        self.assertEqual(sum_entries(mat*square(Variable(2))).curvature, u.Curvature.UNKNOWN_KEY)
 
 
     def test_mul_elemwise(self):
         """Test the mul_elemwise atom.
         """
-        self.assertEquals(mul_elemwise([1, -1], self.x).sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(mul_elemwise([1, -1], self.x).curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(mul_elemwise([1, -1], self.x).size, (2, 1))
+        self.assertEqual(mul_elemwise([1, -1], self.x).sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(mul_elemwise([1, -1], self.x).curvature, u.Curvature.AFFINE_KEY)
+        self.assertEqual(mul_elemwise([1, -1], self.x).size, (2, 1))
         pos_param = Parameter(2, sign="positive")
         neg_param = Parameter(2, sign="negative")
-        self.assertEquals(mul_elemwise(pos_param, pos_param).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(mul_elemwise(pos_param, neg_param).sign, u.Sign.NEGATIVE_KEY)
-        self.assertEquals(mul_elemwise(neg_param, neg_param).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(mul_elemwise(pos_param, pos_param).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(mul_elemwise(pos_param, neg_param).sign, u.Sign.NEGATIVE_KEY)
+        self.assertEqual(mul_elemwise(neg_param, neg_param).sign, u.Sign.POSITIVE_KEY)
 
-        self.assertEquals(mul_elemwise(neg_param, square(self.x)).curvature, u.Curvature.CONCAVE_KEY)
+        self.assertEqual(mul_elemwise(neg_param, square(self.x)).curvature, u.Curvature.CONCAVE_KEY)
 
         # Test promotion.
-        self.assertEquals(mul_elemwise([1, -1], 1).size, (2, 1))
-        self.assertEquals(mul_elemwise(1, self.C).size, self.C.size)
+        self.assertEqual(mul_elemwise([1, -1], 1).size, (2, 1))
+        self.assertEqual(mul_elemwise(1, self.C).size, self.C.size)
 
         with self.assertRaises(Exception) as cm:
             mul_elemwise(self.x, [1, -1])
@@ -239,12 +239,12 @@ class TestAtoms(unittest.TestCase):
     # Test the vstack class.
     def test_vstack(self):
         atom = vstack(self.x, self.y, self.x)
-        self.assertEquals(atom.name(), "vstack(x, y, x)")
-        self.assertEquals(atom.size, (6,1))
+        self.assertEqual(atom.name(), "vstack(x, y, x)")
+        self.assertEqual(atom.size, (6,1))
 
         atom = vstack(self.A, self.C, self.B)
-        self.assertEquals(atom.name(), "vstack(A, C, B)")
-        self.assertEquals(atom.size, (7,2))
+        self.assertEqual(atom.name(), "vstack(A, C, B)")
+        self.assertEqual(atom.size, (7,2))
 
         entries = []
         for i in range(self.x.size[0]):
@@ -267,17 +267,17 @@ class TestAtoms(unittest.TestCase):
         """Test the reshape class.
         """
         expr = reshape(self.A, 4, 1)
-        self.assertEquals(expr.sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(expr.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(expr.size, (4, 1))
+        self.assertEqual(expr.sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(expr.curvature, u.Curvature.AFFINE_KEY)
+        self.assertEqual(expr.size, (4, 1))
 
         expr = reshape(expr, 2, 2)
-        self.assertEquals(expr.size, (2, 2))
+        self.assertEqual(expr.size, (2, 2))
 
         expr = reshape(square(self.x), 1, 2)
-        self.assertEquals(expr.sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(expr.curvature, u.Curvature.CONVEX_KEY)
-        self.assertEquals(expr.size, (1, 2))
+        self.assertEqual(expr.sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(expr.curvature, u.Curvature.CONVEX_KEY)
+        self.assertEqual(expr.size, (1, 2))
 
         with self.assertRaises(Exception) as cm:
             reshape(self.C, 5, 4)
@@ -288,14 +288,14 @@ class TestAtoms(unittest.TestCase):
         """Test the diag atom.
         """
         expr = diag(self.x)
-        self.assertEquals(expr.sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(expr.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(expr.size, (2, 2))
+        self.assertEqual(expr.sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(expr.curvature, u.Curvature.AFFINE_KEY)
+        self.assertEqual(expr.size, (2, 2))
 
         expr = diag(self.A)
-        self.assertEquals(expr.sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(expr.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(expr.size, (2, 1))
+        self.assertEqual(expr.sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(expr.curvature, u.Curvature.AFFINE_KEY)
+        self.assertEqual(expr.size, (2, 1))
 
         with self.assertRaises(Exception) as cm:
             diag(self.C)
@@ -306,9 +306,9 @@ class TestAtoms(unittest.TestCase):
         """Test the trace atom.
         """
         expr = trace(self.A)
-        self.assertEquals(expr.sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(expr.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(expr.size, (1, 1))
+        self.assertEqual(expr.sign, u.Sign.UNKNOWN_KEY)
+        self.assertEqual(expr.curvature, u.Curvature.AFFINE_KEY)
+        self.assertEqual(expr.size, (1, 1))
 
         with self.assertRaises(Exception) as cm:
             trace(self.C)

@@ -17,17 +17,18 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from .. import base_matrix_interface as base
-import numpy
+from cvxpy.interface.numpy_intf.ndarray_intf import NDArrayInterface
+import scipy.sparse as sp
 import cvxopt
-import numbers
+import numpy as np
 
-class NDArrayInterface(base.BaseMatrixInterface):
+class MatrixInterface(NDArrayInterface):
     """
-    An interface to convert constant values to the numpy ndarray class.
+    An interface to convert constant values to the numpy matrix class.
     """
-    TARGET_MATRIX = numpy.ndarray
+    TARGET_MATRIX = np.matrix
 
+    @NDArrayInterface.scalar_const
     def const_to_matrix(self, value, convert_scalars=False):
         """Convert an arbitrary value into a matrix of type self.target_matrix.
 
@@ -41,32 +42,24 @@ class NDArrayInterface(base.BaseMatrixInterface):
         # Convert cvxopt sparse to dense.
         if isinstance(value, cvxopt.spmatrix):
             value = cvxopt.matrix(value)
-        mat = numpy.array(value, dtype='float64')
-        if isinstance(value, list):
-            mat = numpy.atleast_2d(mat)
+        # Lists and 1D arrays become column vectors.
+        if isinstance(value, list) or \
+           isinstance(value, np.ndarray) and value.ndim == 1:
+            mat = np.asmatrix(value, dtype='float64')
             return mat.T
-        return numpy.atleast_2d(mat)
+        # First convert sparse to dense.
+        if sp.issparse(value):
+            value = value.todense()
+        return np.asmatrix(value, dtype='float64')
 
     # Return an identity matrix.
     def identity(self, size):
-        return numpy.eye(size)
-
-    # Return the dimensions of the matrix.
-    def size(self, matrix):
-        # Slicing drops the second dimension.
-        if len(matrix.shape) == 1:
-            dim = matrix.shape[0]
-            return (dim, matrix.size/dim)
-        else:
-            return matrix.shape
-
-    # Get the value of the passed matrix, interpreted as a scalar.
-    def scalar_value(self, matrix):
-        return numpy.asscalar(matrix)
+        return np.asmatrix(np.eye(size))
 
     # A matrix with all entries equal to the given scalar value.
     def scalar_matrix(self, value, rows, cols):
-        return numpy.zeros((rows,cols), dtype='float64') + value
+        mat = np.zeros((rows, cols), dtype='float64') + value
+        return np.asmatrix(mat)
 
     def reshape(self, matrix, size):
-        return numpy.reshape(matrix, size, order='F')
+        return np.reshape(matrix, size, order='F')

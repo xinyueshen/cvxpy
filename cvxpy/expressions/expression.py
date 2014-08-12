@@ -22,7 +22,7 @@ import cvxpy.utilities as u
 import cvxpy.settings as s
 from cvxpy.utilities import performance_utils as pu
 from cvxpy.constraints import EqConstraint, LeqConstraint
-import types
+from . import types
 import abc
 import numpy as np
 
@@ -42,12 +42,10 @@ def _cast_other(binary_op):
         return binary_op(self, other)
     return cast_op
 
-class Expression(u.Canonical):
+class Expression(u.Canonical, metaclass=abc.ABCMeta):
     """
     A mathematical expression in a convex optimization problem.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     # Handles arithmetic operator overloading with Numpy.
     __array_priority__ = 100

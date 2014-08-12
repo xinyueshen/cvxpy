@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from ..base_matrix_interface import BaseMatrixInterface
+from cvxpy.interface.base_matrix_interface import BaseMatrixInterface
 import cvxopt
 import scipy.sparse as sp
 import numbers

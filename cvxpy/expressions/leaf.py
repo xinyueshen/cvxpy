@@ -18,14 +18,12 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import abc
-import expression
+from . import expression
 
-class Leaf(expression.Expression):
+class Leaf(expression.Expression, metaclass=abc.ABCMeta):
     """
     A leaf node, i.e. a Variable, Constant, or Parameter.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     def variables(self):
         """Default is empty list of Variables.

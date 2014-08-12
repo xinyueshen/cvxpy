@@ -18,8 +18,8 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from ..expressions import expression as exp
-from .. import settings as s
+from cvxpy.expressions import expression as exp
+from cvxpy import settings as s
 
 # http://stackoverflow.com/questions/14619449/how-can-i-override-comparisons-between-numpys-ndarray-and-my-type
 

@@ -23,7 +23,7 @@ from cvxpy.lin_ops.tree_mat import mul, tmul, prune_constants
 import cvxpy.problems.iterative as iterative
 from cvxpy.utilities import Curvature
 from cvxpy.utilities import Sign
-from base_test import BaseTest
+from .base_test import BaseTest
 import numpy as np
 
 class TestConvolution(BaseTest):
@@ -39,12 +39,12 @@ class TestConvolution(BaseTest):
         f_conv_g = [ 0., 1., 2.5,  4., 1.5]
         expr = conv(f, g)
         assert expr.is_constant()
-        self.assertEquals(expr.size, (5, 1))
+        self.assertEqual(expr.size, (5, 1))
         self.assertItemsAlmostEqual(expr.value, f_conv_g)
 
         expr = conv(f, x)
         assert expr.is_affine()
-        self.assertEquals(expr.size, (5, 1))
+        self.assertEqual(expr.size, (5, 1))
         # Matrix stuffing.
         t = Variable()
         prob = Problem(Minimize(norm(expr, 1)),
@@ -73,7 +73,7 @@ class TestConvolution(BaseTest):
         Amul, ATmul = iterative.get_mul_funcs(constraints, dims,
                                               var_offsets, var_sizes,
                                               x_length)
-        vec = np.array(range(1, x_length+1))
+        vec = np.array(list(range(1, x_length+1)))
         # A*vec
         result = np.zeros(A.shape[0])
         Amul(vec, result)
@@ -82,7 +82,7 @@ class TestConvolution(BaseTest):
         Amul(vec, result)
         self.assertItemsAlmostEqual(2*A*vec, result)
         # A.T*vec
-        vec = np.array(range(A.shape[0]))
+        vec = np.array(list(range(A.shape[0])))
         result = np.zeros(A.shape[1])
         ATmul(vec, result)
         self.assertItemsAlmostEqual(A.T*vec, result)
@@ -115,4 +115,4 @@ class TestConvolution(BaseTest):
         x = cvx.Variable(N)
         v = cvx.conv(h, x)
         obj = cvx.Minimize(cvx.sum_entries(cvx.mul_elemwise(y,v[0:N])))
-        print cvx.Problem(obj, []).solve()
+        print(cvx.Problem(obj, []).solve())

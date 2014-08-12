@@ -20,10 +20,10 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 import abc
 from cvxpy.atoms.atom import Atom
 import operator as op
+from functools import reduce
 
-class Elementwise(Atom):
+class Elementwise(Atom, metaclass=abc.ABCMeta):
     """ Abstract base class for elementwise atoms. """
-    __metaclass__ = abc.ABCMeta
 
     def shape_from_args(self):
         """Shape is the same as the sum of the arguments.

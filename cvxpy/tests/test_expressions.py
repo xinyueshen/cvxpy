@@ -27,7 +27,7 @@ import cvxpy.interface.matrix_utilities as intf
 import cvxpy.settings as s
 from collections import deque
 import unittest
-from base_test import BaseTest
+from .base_test import BaseTest
 from cvxopt import matrix
 import numpy as np
 
@@ -82,23 +82,23 @@ class TestExpressions(BaseTest):
     # Test tranposing variables.
     def test_transpose_variable(self):
         var = self.a.T
-        self.assertEquals(var.name(), "a")
-        self.assertEquals(var.size, (1,1))
+        self.assertEqual(var.name(), "a")
+        self.assertEqual(var.size, (1,1))
 
         self.a.save_value(2)
-        self.assertEquals(var.value, 2)
+        self.assertEqual(var.value, 2)
 
         var = self.x.T
-        self.assertEquals(var.name(), "x.T")
-        self.assertEquals(var.size, (1,2))
+        self.assertEqual(var.name(), "x.T")
+        self.assertEqual(var.size, (1,2))
 
         self.x.save_value( matrix([1,2]) )
-        self.assertEquals(var.value[0,0], 1)
-        self.assertEquals(var.value[0,1], 2)
+        self.assertEqual(var.value[0,0], 1)
+        self.assertEqual(var.value[0,1], 2)
 
         var = self.C.T
-        self.assertEquals(var.name(), "C.T")
-        self.assertEquals(var.size, (2,3))
+        self.assertEqual(var.name(), "C.T")
+        self.assertEqual(var.size, (2,3))
 
         # coeffs = var.canonical_form[0].coefficients()
         # mat = coeffs.values()[0][0]
@@ -106,12 +106,12 @@ class TestExpressions(BaseTest):
         # self.assertEqual(mat[1,3], 1)
 
         index = var[1,0]
-        self.assertEquals(index.name(), "C.T[1, 0]")
-        self.assertEquals(index.size, (1,1))
+        self.assertEqual(index.name(), "C.T[1, 0]")
+        self.assertEqual(index.size, (1,1))
 
         var = self.x.T.T
-        self.assertEquals(var.name(), "x.T.T")
-        self.assertEquals(var.size, (2,1))
+        self.assertEqual(var.name(), "x.T.T")
+        self.assertEqual(var.size, (2,1))
 
     # Test the Constant class.
     def test_constants(self):
@@ -310,7 +310,7 @@ class TestExpressions(BaseTest):
 
         with self.assertRaises(Exception) as cm:
             (self.x/[2,2,3])
-        print cm.exception
+        print(cm.exception)
         self.assertEqual(str(cm.exception), "Can only divide by a scalar constant.")
 
         # Constant expressions.
@@ -324,16 +324,16 @@ class TestExpressions(BaseTest):
         p = Parameter(sign="positive")
         exp = 2/p
         p.value = 2
-        self.assertEquals(exp.value, 1)
+        self.assertEqual(exp.value, 1)
 
         rho = Parameter(sign="positive")
         rho.value = 1
 
-        self.assertEquals(rho.sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals(Constant(2).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals((Constant(2)/Constant(2)).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals((Constant(2)*rho).sign, u.Sign.POSITIVE_KEY)
-        self.assertEquals((rho/2).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(rho.sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual(Constant(2).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual((Constant(2)/Constant(2)).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual((Constant(2)*rho).sign, u.Sign.POSITIVE_KEY)
+        self.assertEqual((rho/2).sign, u.Sign.POSITIVE_KEY)
 
     # Test the NegExpression class.
     def test_neg_expression(self):
@@ -386,7 +386,7 @@ class TestExpressions(BaseTest):
         # self.assertEqual(exp.name(), "x[1,0]")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
         assert exp.is_affine()
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
         # coeff = exp.canonical_form[0].coefficients()[self.x][0]
         # self.assertEqual(coeff[0,1], 1)
         self.assertEqual(exp.value, None)
@@ -394,7 +394,7 @@ class TestExpressions(BaseTest):
         exp = self.x[1,0].T
         # self.assertEqual(exp.name(), "x[1,0]")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         with self.assertRaises(Exception) as cm:
             (self.x[2,0])
@@ -403,19 +403,19 @@ class TestExpressions(BaseTest):
         # Slicing
         exp = self.C[0:2,1]
         # self.assertEquals(exp.name(), "C[0:2,1]")
-        self.assertEquals(exp.size, (2,1))
+        self.assertEqual(exp.size, (2,1))
         exp = self.C[0:,0:2]
         # self.assertEquals(exp.name(), "C[0:,0:2]")
-        self.assertEquals(exp.size, (3,2))
+        self.assertEqual(exp.size, (3,2))
         exp = self.C[0::2,0::2]
         # self.assertEquals(exp.name(), "C[0::2,0::2]")
-        self.assertEquals(exp.size, (2,1))
+        self.assertEqual(exp.size, (2,1))
         exp = self.C[:3,:1:2]
         # self.assertEquals(exp.name(), "C[0:3,0]")
-        self.assertEquals(exp.size, (3,1))
+        self.assertEqual(exp.size, (3,1))
         exp = self.C[0:,0]
         # self.assertEquals(exp.name(), "C[0:,0]")
-        self.assertEquals(exp.size, (3,1))
+        self.assertEqual(exp.size, (3,1))
 
         c = Constant([[1,-2],[0,4]])
         exp = c[1, 1]
@@ -423,73 +423,73 @@ class TestExpressions(BaseTest):
         self.assertEqual(exp.sign, u.Sign.UNKNOWN_KEY)
         self.assertEqual(c[0,1].sign, u.Sign.UNKNOWN_KEY)
         self.assertEqual(c[1,0].sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
         self.assertEqual(exp.value, 4)
 
         c = Constant([[1,-2,3],[0,4,5],[7,8,9]])
         exp = c[0:3,0:4:2]
         self.assertEqual(exp.curvature, u.Curvature.CONSTANT_KEY)
         assert exp.is_constant()
-        self.assertEquals(exp.size, (3,2))
+        self.assertEqual(exp.size, (3,2))
         self.assertEqual(exp[0,1].value, 7)
 
         # Slice of transpose
         exp = self.C.T[0:2,1]
-        self.assertEquals(exp.size, (2,1))
+        self.assertEqual(exp.size, (2,1))
 
         # Arithmetic expression indexing
         exp = (self.x + self.z)[1,0]
         # self.assertEqual(exp.name(), "x[1,0] + z[1,0]")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
         self.assertEqual(exp.sign, u.Sign.UNKNOWN_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         exp = (self.x + self.a)[1,0]
         # self.assertEqual(exp.name(), "x[1,0] + a")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         exp = (self.x - self.z)[1,0]
         # self.assertEqual(exp.name(), "x[1,0] - z[1,0]")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         exp = (self.x - self.a)[1,0]
         # self.assertEqual(exp.name(), "x[1,0] - a")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         exp = (-self.x)[1,0]
         # self.assertEqual(exp.name(), "-x[1,0]")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         c = Constant([[1,2],[3,4]])
         exp = (c*self.x)[1,0]
         # self.assertEqual(exp.name(), "[[2], [4]] * x[0:,0]")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
         c = Constant([[1,2],[3,4]])
         exp = (c*self.a)[1,0]
         # self.assertEqual(exp.name(), "2 * a")
         self.assertEqual(exp.curvature, u.Curvature.AFFINE_KEY)
-        self.assertEquals(exp.size, (1,1))
+        self.assertEqual(exp.size, (1,1))
 
     def test_neg_indices(self):
         """Test negative indices.
         """
         c = Constant([[1,2],[3,4]])
         exp = c[-1, -1]
-        self.assertEquals(exp.value, 4)
-        self.assertEquals(exp.size, (1, 1))
-        self.assertEquals(exp.curvature, u.Curvature.CONSTANT_KEY)
+        self.assertEqual(exp.value, 4)
+        self.assertEqual(exp.size, (1, 1))
+        self.assertEqual(exp.curvature, u.Curvature.CONSTANT_KEY)
 
         c = Constant([1,2,3,4])
         exp = c[1:-1]
         self.assertItemsAlmostEqual(exp.value, [2, 3])
-        self.assertEquals(exp.size, (2, 1))
-        self.assertEquals(exp.curvature, u.Curvature.CONSTANT_KEY)
+        self.assertEqual(exp.size, (2, 1))
+        self.assertEqual(exp.curvature, u.Curvature.CONSTANT_KEY)
 
     def test_logical_indices(self):
         """Test indexing with logical arrays.

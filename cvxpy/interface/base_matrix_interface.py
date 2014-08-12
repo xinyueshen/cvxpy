@@ -17,17 +17,16 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import matrix_utilities as intf
+from cvxpy.interface import matrix_utilities as intf
 import abc
 import numbers
 import numpy as np
 
-class BaseMatrixInterface(object):
+class BaseMatrixInterface(object, metaclass=abc.ABCMeta):
     """
     An interface between constants' internal values
     and the target matrix used internally.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def const_to_matrix(self, value, convert_scalars=False):

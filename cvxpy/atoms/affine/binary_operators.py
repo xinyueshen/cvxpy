@@ -17,12 +17,13 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from affine_atom import AffAtom
+from .affine_atom import AffAtom
 import cvxpy.interface as intf
 from ...expressions.constants import Constant
 import cvxpy.lin_ops.lin_utils as lu
 import operator as op
 import numpy as np
+from functools import reduce
 
 class BinaryOperator(AffAtom):
     """

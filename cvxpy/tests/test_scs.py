@@ -19,11 +19,12 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 
 from cvxpy import *
 import cvxpy.atoms.elementwise.log as cvxlog
-from base_test import BaseTest
+from .base_test import BaseTest
 import cvxopt
 import unittest
 import math
 import numpy as np
+from functools import reduce
 
 class TestSCS(BaseTest):
     """ Unit tests for the nonlinear atoms module. """
@@ -120,10 +121,10 @@ class TestSCS(BaseTest):
         #Distribution to be estimated
         v_prob=cp.Variable(kK,1)
         objkl=0.0
-        for k in xrange(kK):
+        for k in range(kK):
             objkl += cp.kl_div(v_prob[k,0],p_refProb[k,0])
 
-        constrs=[sum([v_prob[k,0] for k in xrange(kK)])==1]
+        constrs=[sum([v_prob[k,0] for k in range(kK)])==1]
         klprob=cp.Problem(cp.Minimize(objkl),constrs)
         p_refProb.value=npSPriors
         result = klprob.solve(solver=SCS, verbose=True)
@@ -133,7 +134,7 @@ class TestSCS(BaseTest):
         """Test a problem with entr.
         """
         for n in [5, 10, 25]:
-            print n
+            print(n)
             x = Variable(n)
             obj = Maximize(sum_entries(entr(x)))
             p = Problem(obj, [sum_entries(x) == 1])
@@ -144,7 +145,7 @@ class TestSCS(BaseTest):
         """Test a problem with exp.
         """
         for n in [5, 10, 25]:
-            print n
+            print(n)
             x = Variable(n)
             obj = Minimize(sum_entries(exp(x)))
             p = Problem(obj, [sum_entries(x) == 1])
@@ -155,7 +156,7 @@ class TestSCS(BaseTest):
         """Test a problem with log.
         """
         for n in [5, 10, 25]:
-            print n
+            print(n)
             x = Variable(n)
             obj = Maximize(sum_entries(log(x)))
             p = Problem(obj, [sum_entries(x) == 1])

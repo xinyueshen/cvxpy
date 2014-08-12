@@ -25,7 +25,7 @@ import numpy as np
 import scipy.sparse as sp
 import scipy.linalg as LA
 import unittest
-from base_test import BaseTest
+from .base_test import BaseTest
 
 class test_tree_mat(BaseTest):
     """ Unit tests for the matrix ops with expression trees. """
@@ -119,7 +119,7 @@ class test_tree_mat(BaseTest):
         val_dict = {x.id: g}
         result = mul(expr, val_dict)
         self.assertItemsAlmostEqual(result, f_conv_g)
-        value = np.array(range(5))
+        value = np.array(list(range(5)))
         result_dict = tmul(expr, value)
         toep = LA.toeplitz(np.array([1,0,0]),
                            np.array([1, 2, 3, 0, 0]))
@@ -164,7 +164,7 @@ class test_tree_mat(BaseTest):
         Amul, ATmul = iterative.get_mul_funcs(constraints, dims,
                                               var_offsets, var_sizes,
                                               x_length)
-        vec = np.array(range(x_length))
+        vec = np.array(list(range(x_length)))
         # A*vec
         result = np.zeros(A.shape[0])
         Amul(vec, result)
@@ -172,7 +172,7 @@ class test_tree_mat(BaseTest):
         Amul(vec, result)
         self.assertItemsAlmostEqual(2*A*vec, result)
         # A.T*vec
-        vec = np.array(range(A.shape[0]))
+        vec = np.array(list(range(A.shape[0])))
         result = np.zeros(A.shape[1])
         ATmul(vec, result)
         self.assertItemsAlmostEqual(A.T*vec, result)

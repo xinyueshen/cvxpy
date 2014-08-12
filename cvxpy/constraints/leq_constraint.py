@@ -45,7 +45,7 @@ class LeqConstraint(u.Canonical, Constraint):
     def __repr__(self):
         return self.name()
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Raises an exception when called.
 
         Called when evaluating the truth value of the constraint.

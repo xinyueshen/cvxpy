@@ -25,7 +25,7 @@ import cvxpy.interface as intf
 import numpy as np
 import scipy.sparse as sp
 import unittest
-from base_test import BaseTest
+from .base_test import BaseTest
 
 class test_lin_ops(BaseTest):
     """ Unit tests for the lin_ops module. """
@@ -225,7 +225,7 @@ class test_lin_ops(BaseTest):
         coeffs = get_coefficients(expr)
         assert len(coeffs) == 1
         id_, mat = coeffs[0]
-        test_mat = np.mat(range(20)).T
+        test_mat = np.mat(list(range(20))).T
         self.assertItemsAlmostEqual((mat*test_mat).reshape((4, 5), order='F'),
             test_mat.reshape(size, order='F').T)
 
@@ -242,7 +242,7 @@ class test_lin_ops(BaseTest):
         id_, mat = coeffs[0]
         self.assertEqual(id_, x.data)
         self.assertEqual(mat.shape, (4, 20))
-        test_mat = np.mat(range(20)).T
+        test_mat = np.mat(list(range(20))).T
         self.assertItemsAlmostEqual((mat*test_mat).reshape((2, 2), order='F'),
             test_mat.reshape(size, order='F')[key])
         # Eye with scalar mult.
@@ -254,13 +254,13 @@ class test_lin_ops(BaseTest):
         coeffs = get_coefficients(expr)
         assert len(coeffs) == 1
         id_, mat = coeffs[0]
-        test_mat = np.mat(range(20)).T
+        test_mat = np.mat(list(range(20))).T
         self.assertItemsAlmostEqual((mat*test_mat).reshape((2, 2), order='F'),
             5*test_mat.reshape(size, order='F')[key])
         # Promoted
         key = (slice(0,2,None), slice(0,2,None))
         x = create_var((1, 1))
-        value = np.array(range(20)).reshape(size)
+        value = np.array(list(range(20))).reshape(size)
         A = create_const(value, size)
         prom_x = promote(x, (size[1], 1))
         expr = mul_expr(A, diag_vec(prom_x), size)
@@ -286,7 +286,7 @@ class test_lin_ops(BaseTest):
         size = (5, 5)
         key = (slice(0,2,None), slice(0,2,None))
         x = create_var(size)
-        value = np.array(range(25)).reshape(size)
+        value = np.array(list(range(25))).reshape(size)
         A = create_const(value, size)
         expr = mul_expr(A, x, size)
         expr = index(expr, (2, 2), key)
@@ -294,7 +294,7 @@ class test_lin_ops(BaseTest):
         assert len(coeffs) == 1
         id_, mat = coeffs[0]
         self.assertEqual(mat.shape, (4, 25))
-        test_mat = np.mat(range(25)).T
+        test_mat = np.mat(list(range(25))).T
         self.assertItemsAlmostEqual((mat*test_mat).reshape((2, 2), order='F'),
             (A.data*test_mat.reshape(size, order='F'))[key])
         # Scalar constant
@@ -310,7 +310,7 @@ class test_lin_ops(BaseTest):
         # Dense constant
         size = (5, 4)
         key = (slice(0,2,None), slice(0,1,None))
-        value = np.array(range(20)).reshape(size)
+        value = np.array(list(range(20))).reshape(size)
         A = create_const(value, size)
         expr = index(A, (2, 1), key)
         coeffs = get_coefficients(expr)
@@ -332,7 +332,7 @@ class test_lin_ops(BaseTest):
         size = (5, 4)
         key = (slice(0,2,None), slice(0,1,None))
         param = Parameter(*size)
-        value = np.array(range(20)).reshape(size)
+        value = np.array(list(range(20))).reshape(size)
         param.value = value
         A = create_param(param, size)
         expr = index(A, (2, 1), key)

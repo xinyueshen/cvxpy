@@ -50,7 +50,7 @@ def tv(value, *args):
         return norm(value[1:] - value[0:max(rows, cols)-1], 1)
     # L2 norm for matrices.
     else:
-        args = map(Expression.cast_to_const, args)
+        args = list(map(Expression.cast_to_const, args))
         values = [value] + list(args)
         diffs = []
         for mat in values:

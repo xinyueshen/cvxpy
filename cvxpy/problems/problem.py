@@ -170,7 +170,7 @@ class Problem(u.Canonical):
             Is the problem infeasible?
         """
         # Remove redundant constraints.
-        for key, constraints in constr_map.items():
+        for key, constraints in list(constr_map.items()):
             uniq_constr = unique(constraints,
                                  key=lambda c: c.constr_id)
             constr_map[key] = list(uniq_constr)
@@ -234,7 +234,7 @@ class Problem(u.Canonical):
     def _constraints_count(constr_map):
         """Returns the number of internal constraints.
         """
-        return sum([len(cset) for cset in constr_map.values()])
+        return sum([len(cset) for cset in list(constr_map.values())])
 
     def _choose_solver(self, constr_map):
         """Determines the appropriate solver.
@@ -489,7 +489,7 @@ class Problem(u.Canonical):
         G, h = self._constr_matrix(constr_map[s.LEQ], var_offsets, x_length,
                                    self._SPARSE_INTF, self._DENSE_INTF)
         # Convert c,h,b to 1D arrays.
-        c, h, b = map(intf.from_2D_to_1D, [c.T, h, b])
+        c, h, b = list(map(intf.from_2D_to_1D, [c.T, h, b]))
         # Return the arguments that would be passed to ECOS.
         return ((c, G, h, dims, A, b), obj_offset)
 
@@ -621,7 +621,7 @@ class Problem(u.Canonical):
         cvxopt.solvers.options['refinement'] = 1
 
         # Apply any user-specific options
-        for key, value in opts.items():
+        for key, value in list(opts.items()):
             cvxopt.solvers.options[key] = value
 
         try:
@@ -689,7 +689,7 @@ class Problem(u.Canonical):
                                    var_offsets, x_length,
                                    self._SPARSE_INTF, self._DENSE_INTF)
         # Convert c, b to 1D arrays.
-        c, b = map(intf.from_2D_to_1D, [c.T, b])
+        c, b = list(map(intf.from_2D_to_1D, [c.T, b]))
         data = {"c": c}
         data["A"] = A
         data["b"] = b
@@ -728,7 +728,7 @@ class Problem(u.Canonical):
                                            var_offsets, x_length)
         obj_offset = prob_data[1]
         # Set the options to be VERBOSE plus any user-specific options.
-        opts = dict({ "VERBOSE": verbose }.items() + opts.items())
+        opts = dict(list({ "VERBOSE": verbose }.items()) + list(opts.items()))
         use_indirect = opts["USE_INDIRECT"] if "USE_INDIRECT" in opts else False
         results = scs.solve(*prob_data[0], opts=opts, USE_INDIRECT = use_indirect)
         status = s.SOLVER_STATUS[s.SCS][results["info"]["status"]]
@@ -793,7 +793,7 @@ class Problem(u.Canonical):
         # Ensure the variables are always in the same
         # order for the same problem.
         var_names = list(set(vars_))
-        var_names.sort(key=lambda (var_id, var_size): var_id)
+        var_names.sort(key=lambda var_id_var_size: var_id_var_size[0])
         # Map var ids to offsets.
         vert_offset = 0
         for var_id, var_size in var_names:

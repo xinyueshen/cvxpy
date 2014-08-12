@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from dense_matrix_interface import DenseMatrixInterface
+from cvxpy.interface.cvxopt_intf.dense_mat_intf import DenseMatrixInterface
 import scipy.sparse as sp
 import cvxopt
 import numpy
@@ -52,7 +52,7 @@ class SparseMatrixInterface(DenseMatrixInterface):
 
     # Return an identity matrix.
     def identity(self, size):
-        return cvxopt.spmatrix(1, range(size), range(size))
+        return cvxopt.spmatrix(1, list(range(size)), list(range(size)))
 
     # A matrix with all entries equal to the given scalar value.
     def scalar_matrix(self, value, rows, cols):

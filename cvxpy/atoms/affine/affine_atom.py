@@ -21,10 +21,10 @@ import abc
 import cvxpy.utilities as u
 from cvxpy.atoms.atom import Atom
 import operator as op
+from functools import reduce
 
-class AffAtom(Atom):
+class AffAtom(Atom, metaclass=abc.ABCMeta):
     """ Abstract base class for affine atoms. """
-    __metaclass__ = abc.ABCMeta
     # The curvature of the atom if all arguments conformed to DCP.
     def func_curvature(self):
         return u.Curvature.AFFINE

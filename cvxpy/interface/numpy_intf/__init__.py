@@ -17,6 +17,6 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from ndarray_interface import NDArrayInterface
-from matrix_interface import MatrixInterface
-from sparse_matrix_interface import SparseMatrixInterface
+from cvxpy.interface.numpy_intf.ndarray_interface import NDArrayInterface
+from cvxpy.interface.numpy_intf.matrix_interface import MatrixInterface
+from cvxpy.interface.numpy_intf.sparse_mat_intf import SparseMatrixInterface

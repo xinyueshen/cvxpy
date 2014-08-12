@@ -57,19 +57,19 @@ class TestProblem(unittest.TestCase):
         """Test large number of variables summed.
         """
         for n in [10, 20, 30, 40, 50]:
-            A = matrix(range(n*n), (n,n))
+            A = matrix(list(range(n*n)), (n,n))
             x = Variable(n,n)
             p = Problem(Minimize(at.sum_entries(x)), [x >= A])
             result = p.solve()
             answer = n*n*(n*n+1)/2 - n*n
-            print result - answer
+            print(result - answer)
             self.assertAlmostEqual(result, answer)
 
     def test_large_square(self):
         """Test large number of variables squared.
         """
         for n in [10, 20, 30, 40, 50]:
-            A = matrix(range(n*n), (n,n))
+            A = matrix(list(range(n*n)), (n,n))
             x = Variable(n,n)
             p = Problem(Minimize(at.square(x[0, 0])),
                 [x >= A])

@@ -20,7 +20,7 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 import cvxpy.lin_ops.lin_utils as lu
 import abc
 
-class Constraint(object):
+class Constraint(object, metaclass=abc.ABCMeta):
 	"""Abstract super class for constraints.
 
 	TODO rationalize constraint classes. Make lin_op versions
@@ -31,8 +31,6 @@ class Constraint(object):
     constr_id : int
         A unique id for the constraint.
 	"""
-
-	__metaclass__ = abc.ABCMeta
 
 	def __init__(self):
 		self.constr_id = lu.get_id()

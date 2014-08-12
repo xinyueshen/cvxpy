@@ -17,20 +17,20 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import cvxopt_interface as co_intf
-import numpy_interface as np_intf
+from cvxpy.interface import cvxopt_intf
+from cvxpy.interface import numpy_intf
 import cvxopt
 import scipy.sparse as sp
 import numbers
 import numpy as np
-from ..utilities.sign import Sign
+from cvxpy.utilities.sign import Sign
 
 # A mapping of class to interface.
-INTERFACES = {cvxopt.matrix: co_intf.DenseMatrixInterface(),
-              cvxopt.spmatrix: co_intf.SparseMatrixInterface(),
-              np.ndarray: np_intf.NDArrayInterface(),
-              np.matrix: np_intf.MatrixInterface(),
-              sp.csc_matrix: np_intf.SparseMatrixInterface(),
+INTERFACES = {cvxopt.matrix: cvxopt_intf.DenseMatrixInterface(),
+              cvxopt.spmatrix: cvxopt_intf.SparseMatrixInterface(),
+              np.ndarray: numpy_intf.NDArrayInterface(),
+              np.matrix: numpy_intf.MatrixInterface(),
+              sp.csc_matrix: numpy_intf.SparseMatrixInterface(),
 }
 # Default Numpy interface.
 DEFAULT_NP_INTERFACE = INTERFACES[np.ndarray]
@@ -113,7 +113,7 @@ def sign(constant):
         max_val = constant.max()
         min_val = constant.min()
     else: # Convert to Numpy array.
-        mat = INTERFACES[np.ndarray].const_to_matrix(constant)
+        mat = get_matrix_interface(np.ndarray).const_to_matrix(constant)
         max_val = mat.max()
         min_val = mat.min()
     max_sign = Sign.val_to_sign(max_val)
@@ -125,9 +125,9 @@ def index(constant, key):
     if is_scalar(constant):
         return constant
     elif constant.__class__ in INTERFACES:
-        return INTERFACES[constant.__class__].index(constant, key)
+        return get_matrix_interface(constant.__class__).index(constant, key)
     # Use CSC interface for all sparse matrices.
     elif is_sparse(constant):
-        interface = INTERFACES[sp.csc_matrix]
+        interface = get_matrix_interface(sp.csc_matrix)
         constant = interface.const_to_matrix(constant)
         return interface.index(constant, key)

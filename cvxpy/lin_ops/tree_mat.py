@@ -102,7 +102,7 @@ def sum_dicts(dicts):
     # Sum repeated entries.
     sum_dict = {}
     for val_dict in dicts:
-        for id_, value in val_dict.items():
+        for id_, value in list(val_dict.items()):
             if id_ in sum_dict:
                 sum_dict[id_] = sum_dict[id_] + value
             else:
@@ -215,7 +215,7 @@ def conv_mul(lin_op, rh_val, transpose=False):
     length = lin_op.size[0]
     constant = mul(lin_op.data, {})
     # Convert to 2D
-    constant, rh_val = map(intf.from_1D_to_2D, [constant, rh_val])
+    constant, rh_val = list(map(intf.from_1D_to_2D, [constant, rh_val]))
     lh_term = fft(constant, length, axis=0)
     rh_term = fft(rh_val, length, axis=0)
     # Transpose equivalent to taking conjugate

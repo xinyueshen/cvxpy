@@ -25,14 +25,14 @@ from cvxpy.problems.objective import *
 from cvxpy.problems.problem import Problem
 import cvxpy.interface as intf
 import cvxpy.lin_ops.lin_utils as lu
-from base_test import BaseTest
+from .base_test import BaseTest
 from cvxopt import matrix
 from numpy import linalg as LA
 import numpy
 import unittest
 import math
 import sys
-from cStringIO import StringIO
+from io import StringIO
 
 class TestProblem(BaseTest):
     """ Unit tests for the expression/expression module. """
@@ -167,7 +167,7 @@ class TestProblem(BaseTest):
             all_ineq = itertools.chain(constr_map[s.EQ], constr_map[s.LEQ])
             var_offsets, var_sizes, x_length = p._get_var_offsets(objective, all_ineq)
             # Sort by offset.
-            vars_ = sorted(var_offsets.items(), key=lambda (var_id, offset): offset)
+            vars_ = sorted(list(var_offsets.items()), key=lambda var_id_offset: var_id_offset[1])
             vars_ = [var_id for (var_id, offset) in vars_]
             vars_lists.append(vars_)
             ineqs_lists.append(constr_map[s.LEQ])
@@ -190,7 +190,7 @@ class TestProblem(BaseTest):
         def test(self):
             objective, constr_map  = self.canonicalize()
             self._presolve(objective, constr_map)
-            print len(constr_map[s.SOC])
+            print(len(constr_map[s.SOC]))
             dims = self._format_for_solver(constr_map, s.ECOS)
             return (len(constr_map[s.EQ]),len(constr_map[s.LEQ]))
         Problem.register_solve("test", test)
@@ -580,7 +580,7 @@ class TestProblem(BaseTest):
         self.assertItemsAlmostEqual(self.x.value, [2,3])
 
         n = 10
-        A = matrix(range(n*n), (n,n))
+        A = matrix(list(range(n*n)), (n,n))
         x = Variable(n,n)
         p = Problem(Minimize(sum_entries(x)), [x == A])
         result = p.solve()

@@ -17,17 +17,17 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from .. import settings as s
-from .. import utilities as u
-from .. import interface as intf
-from ..expressions.constants import Constant, ConstantAtom
-from ..expressions.variables import Variable
-from ..expressions.expression import Expression
+from cvxpy import settings as s
+from cvxpy import utilities as u
+from cvxpy import interface as intf
+from cvxpy.expressions.constants import Constant, ConstantAtom
+from cvxpy.expressions.variables import Variable
+from cvxpy.expressions.expression import Expression
 import abc
+from functools import reduce
 
-class Atom(Expression):
+class Atom(Expression, metaclass=abc.ABCMeta):
     """ Abstract base class for atoms. """
-    __metaclass__ = abc.ABCMeta
     # args are the expressions passed into the Atom constructor.
     def __init__(self, *args):
         # Throws error if args is empty.

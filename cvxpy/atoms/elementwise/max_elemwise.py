@@ -21,6 +21,7 @@ import cvxpy.utilities as u
 import cvxpy.lin_ops.lin_utils as lu
 from cvxpy.atoms.elementwise.elementwise import Elementwise
 import numpy as np
+from functools import reduce
 
 class max_elemwise(Elementwise):
     """ Elementwise maximum. """

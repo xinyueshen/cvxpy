@@ -195,7 +195,7 @@ def trace_mat(lin_op):
     """
     rows, _ = lin_op.args[0].size
     mat = np.zeros((1, rows**2))
-    for i in xrange(rows):
+    for i in range(rows):
         mat[0, i*rows + i] = 1
     return np.matrix(mat)
 
@@ -303,8 +303,8 @@ def index_mat(lin_op):
     """
     key = lin_op.data
     rows, cols = lin_op.args[0].size
-    row_selection = range(rows)[key[0]]
-    col_selection = range(cols)[key[1]]
+    row_selection = list(range(rows))[key[0]]
+    col_selection = list(range(cols))[key[1]]
     # Construct a coo matrix.
     val_arr = []
     row_arr = []
@@ -339,8 +339,8 @@ def transpose_mat(lin_op):
     val_arr = []
     row_arr = []
     col_arr = []
-    for col in xrange(cols):
-        for row in xrange(rows):
+    for col in range(cols):
+        for row in range(rows):
             # Index in transposed coeff.
             row_arr.append(col*rows + row)
             # Index in original coeff.
@@ -368,7 +368,7 @@ def diag_vec_mat(lin_op):
     val_arr = []
     row_arr = []
     col_arr = []
-    for i in xrange(rows):
+    for i in range(rows):
         # Index in the diagonal matrix.
         row_arr.append(i*rows + i)
         # Index in the original vector.
@@ -396,7 +396,7 @@ def diag_mat_mat(lin_op):
     val_arr = []
     row_arr = []
     col_arr = []
-    for i in xrange(rows):
+    for i in range(rows):
         # Index in the original matrix.
         col_arr.append(i*rows + i)
         # Index in the extracted vector.
