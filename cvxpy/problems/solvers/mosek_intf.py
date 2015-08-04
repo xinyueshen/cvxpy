@@ -31,8 +31,8 @@ class MOSEK(Solver):
     LP_CAPABLE = True
     SOCP_CAPABLE = True
     SDP_CAPABLE = False #for now only SOCP
-    EXP_CAPABLE = True
-    MIP_CAPABLE = False
+    EXP_CAPABLE = False
+    MIP_CAPABLE = True # work in progress
 
     def import_solver(self):
         """Imports the solver.
@@ -114,6 +114,8 @@ class MOSEK(Solver):
         h = data[s.H]
         c = data[s.C]
         dims = data[s.DIMS]
+        bool_indexes = data[s.BOOL_IDX]
+        int_indexes = data[s.INT_IDX]
 
         # size of problem
         numvar = len(c) + sum(dims[s.SOC_DIM])
@@ -164,6 +166,17 @@ class MOSEK(Solver):
             current_con_index += size_cone
             current_var_index += size_cone
 
+        # mixed integer
+        # to implement bool, we set them integer and add 0 <= . <= 1
+        task.putvartypelist(int_indexes, 
+                            [mosek.variabletype.type_int]*len(int_indexes))
+        task.putvartypelist(bool_indexes, 
+                            [mosek.variabletype.type_int]*len(bool_indexes))
+        task.putvarboundlist(bool_indexes,
+                             [mosek.boundkey.ra]*len(bool_indexes),
+                             [0.]*len(bool_indexes),
+                             [1.]*len(bool_indexes))
+
         # solve
         task.putobjsense(mosek.objsense.minimize)
         task.optimize() 
@@ -196,31 +209,38 @@ class MOSEK(Solver):
         # taken from:
         # http://docs.mosek.com/7.0/pythonapi/Solution_status_keys.html
         STATUS_MAP = {mosek.solsta.optimal: s.OPTIMAL,
+                      mosek.solsta.integer_optimal: s.OPTIMAL,
                       mosek.solsta.prim_infeas_cer: s.INFEASIBLE,
                       mosek.solsta.dual_infeas_cer: s.UNBOUNDED,
                       mosek.solsta.near_optimal: s.OPTIMAL_INACCURATE,
+                      mosek.solsta.near_integer_optimal: s.OPTIMAL_INACCURATE,
                       mosek.solsta.near_prim_infeas_cer: s.INFEASIBLE_INACCURATE,
                       mosek.solsta.near_dual_infeas_cer: s.UNBOUNDED_INACCURATE,
                       mosek.solsta.unknown: s.SOLVER_ERROR}
 
-        prosta = task.getprosta(mosek.soltype.itr) #unused
-        solsta = task.getsolsta(mosek.soltype.itr) 
+        # test this maybe more
+        solution_mip = (len(data[s.BOOL_IDX]) or len(data[s.INT_IDX])) 
+        solution_type = mosek.soltype.itg if solution_mip else mosek.soltype.itr
+
+        prosta = task.getprosta(solution_type) #unused
+        solsta = task.getsolsta(solution_type) 
 
         result_dict = {s.STATUS: STATUS_MAP[solsta]}
 
         if result_dict[s.STATUS] in s.SOLUTION_PRESENT:
             # get primal variables values
             result_dict[s.PRIMAL] = np.zeros(task.getnumvar(), dtype=np.float)
-            task.getxx(mosek.soltype.itr, result_dict[s.PRIMAL]) 
+            task.getxx(solution_type, result_dict[s.PRIMAL]) 
             # get obj value
-            result_dict[s.VALUE] = task.getprimalobj(mosek.soltype.itr) + \
+            result_dict[s.VALUE] = task.getprimalobj(solution_type) + \
                                    data[s.OFFSET]
             # get dual 
-            y = np.zeros(task.getnumcon(), dtype=np.float)
-            task.gety(mosek.soltype.itr, y) 
-            # it appears signs are inverted
-            result_dict[s.EQ_DUAL] = -y[:len(data[s.B])] 
-            result_dict[s.INEQ_DUAL] = \
-                -y[len(data[s.B]):len(data[s.B])+data[s.DIMS][s.LEQ_DIM]]
+            if not solution_mip: # there might be better way than disable dual
+                y = np.zeros(task.getnumcon(), dtype=np.float)
+                task.gety(solution_type, y) 
+                # it appears signs are inverted
+                result_dict[s.EQ_DUAL] = -y[:len(data[s.B])] 
+                result_dict[s.INEQ_DUAL] = \
+                    -y[len(data[s.B]):len(data[s.B])+data[s.DIMS][s.LEQ_DIM]]
 
         return result_dict        
