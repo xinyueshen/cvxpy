@@ -20,12 +20,12 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 from cvxpy.error import DCPError
 import cvxpy.interface as intf
 import cvxpy.utilities as u
-import cvxpy.utilities.key_utils as ku
 import cvxpy.settings as s
 from cvxpy.utilities import performance_utils as pu
 from cvxpy.constraints import EqConstraint, LeqConstraint, PSDConstraint
 from cvxpy.expressions import types
 import abc
+import math
 import numpy as np
 
 def _cast_other(binary_op):
@@ -169,10 +169,7 @@ class Expression(u.Canonical):
         """
         # Returning self for scalars causes
         # the built-in sum to hang.
-        if ku.is_special_slice(key):
-            return types.index().get_special_slice(self, key)
-        else:
-            return types.index()(self, key)
+        return types.index()(self, key)
 
     @property
     def T(self):

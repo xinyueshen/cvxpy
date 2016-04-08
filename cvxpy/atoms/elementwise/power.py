@@ -147,7 +147,6 @@ class power(Elementwise):
 
     @Elementwise.numpy_numeric
     def numeric(self, values):
-        # TODO throw error if negative and power doesn't handle that.
         if self.p == 0:
             return np.ones(self.size)
         else:
@@ -213,6 +212,27 @@ class power(Elementwise):
         copy.approx_error = self.approx_error
         super(type(self), copy).__init__(*args)
         return copy
+
+    def grad(self, values):
+        #restrict to vectors
+        value = np.matrix(values[0]) ## only one argument
+        rows, cols = self.args[0].size
+        result = np.zeros((rows,cols,rows,cols))
+        if self.p<1:
+            if value.min()<0:
+                return [np.inf*np.ones((rows,cols,rows,cols))]
+        for d in range(rows):
+            result[d,0,d,0] = self.p*np.power(value[d],self.p-1)
+        return [result]
+
+    @property
+    def domain(self):
+        dom = self.args[0].domain
+        if self.p <1 and not self.p==0:
+            dom.append(self.args[0] >= 0)
+        if self.p >1 and not np.fmod(self.p,2)==0:
+            dom.append(self.args[0] >= 0)
+        return dom
 
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):

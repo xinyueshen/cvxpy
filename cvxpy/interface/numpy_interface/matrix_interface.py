@@ -42,10 +42,7 @@ class MatrixInterface(NDArrayInterface):
         """
         # Convert cvxopt sparse to dense.
         if isinstance(value, cvxopt.spmatrix):
-            value = cvxopt.matrix(value, tc='d')
-        # Convert integer cvxopt matrices to float.
-        elif isinstance(value, cvxopt.matrix) and value.typecode == 'i':
-            value = value*1.0
+            value = cvxopt.matrix(value)
         # Lists and 1D arrays become column vectors.
         elif isinstance(value, list) or \
              isinstance(value, np.ndarray) and value.ndim == 1:

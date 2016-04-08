@@ -35,6 +35,15 @@ class abs(Elementwise):
     def numeric(self, values):
         return np.absolute(values[0])
 
+    def grad(self, values):
+        rows, cols = self.args[0].size
+        result = np.zeros((rows,cols,rows,cols))
+        temp = np.eye(rows)
+        d = np.diag_indices(rows)
+        temp[d] = np.ones((rows,1)) - 2*np.matrix(map(lambda x: 1 if x else 0,np.matrix(values[0])<0))
+        result[:,0,:,0] = temp # for vector
+        return [result]
+
     # Always positive.
     def sign_from_args(self):
         return u.Sign.POSITIVE

@@ -19,8 +19,6 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 
 import cvxpy.utilities as u
 import cvxpy.lin_ops.lin_utils as lu
-# Only need Variable from expressions, but that would create a circular import.
-from cvxpy import expressions
 from cvxpy.constraints.constraint import Constraint
 import numpy as np
 
@@ -30,7 +28,7 @@ class LeqConstraint(u.Canonical, Constraint):
     def __init__(self, lh_exp, rh_exp):
         self.args = [lh_exp, rh_exp]
         self._expr = lh_exp - rh_exp
-        self.dual_variable = expressions.variables.Variable(*self._expr.size)
+        self._dual_value = None
         super(LeqConstraint, self).__init__()
 
     @property
@@ -138,7 +136,7 @@ class LeqConstraint(u.Canonical, Constraint):
     # The value of the dual variable.
     @property
     def dual_value(self):
-        return self.dual_variable.value
+        return self._dual_value
 
     def save_value(self, value):
         """Save the value of the dual variable for the constraint's parent.
@@ -146,4 +144,4 @@ class LeqConstraint(u.Canonical, Constraint):
         Args:
             value: The value of the dual variable.
         """
-        self.dual_variable.save_value(value)
+        self._dual_value = value

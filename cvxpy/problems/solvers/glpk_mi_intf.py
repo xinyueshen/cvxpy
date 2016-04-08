@@ -73,19 +73,19 @@ class GLPK_MI(GLPK):
         import cvxopt, cvxopt.glpk
         data = self.get_problem_data(objective, constraints, cached_data)
         # Save original cvxopt solver options.
-        old_options = cvxopt.glpk.options.copy()
+        old_options = cvxopt.solvers.options.copy()
         # Silence cvxopt if verbose is False.
         if verbose:
-            cvxopt.glpk.options["msg_lev"] = "GLP_MSG_ON"
+            cvxopt.solvers.options["msg_lev"] = "GLP_MSG_ON"
         else:
-            cvxopt.glpk.options["msg_lev"] = "GLP_MSG_OFF"
+            cvxopt.solvers.options["msg_lev"] = "GLP_MSG_OFF"
 
         # Apply any user-specific options.
         # Rename max_iters to maxiters.
         if "max_iters" in solver_opts:
             solver_opts["maxiters"] = solver_opts["max_iters"]
         for key, value in solver_opts.items():
-            cvxopt.glpk.options[key] = value
+            cvxopt.solvers.options[key] = value
 
         try:
             results_tup = cvxopt.glpk.ilp(data[s.C],
@@ -133,11 +133,3 @@ class GLPK_MI(GLPK):
             new_results[s.VALUE] = primal_val + data[s.OFFSET]
 
         return new_results
-
-    def _restore_solver_options(self, old_options):
-        import cvxopt.glpk
-        for key, value in list(cvxopt.glpk.options.items()):
-            if key in old_options:
-                cvxopt.glpk.options[key] = old_options[key]
-            else:
-                del cvxopt.glpk.options[key]

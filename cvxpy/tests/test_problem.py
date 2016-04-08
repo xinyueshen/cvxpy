@@ -28,7 +28,6 @@ from cvxpy.problems.solvers.utilities import SOLVERS, installed_solvers
 from cvxpy.problems.problem_data.sym_data import SymData
 import cvxpy.interface as intf
 import cvxpy.lin_ops.lin_utils as lu
-from cvxpy.error import DCPError
 from cvxpy.tests.base_test import BaseTest
 from cvxopt import matrix
 from numpy import linalg as LA
@@ -175,7 +174,7 @@ class TestProblem(BaseTest):
             for solver in installed_solvers():
                 # Don't test GLPK because there's a race
                 # condition in setting CVXOPT solver options.
-                if solver in ["GLPK", "GLPK_MI", "MOSEK", "CBC"]:
+                if solver in ["GLPK", "GLPK_MI"]:
                     continue
                 if solver == "ELEMENTAL":
                     # ELEMENTAL's stdout is separate from python,
@@ -194,14 +193,9 @@ class TestProblem(BaseTest):
                                      [self.a >= 2, self.x >= 2])
                 if SOLVERS[solver].MIP_CAPABLE:
                     p.constraints.append(Bool() == 0)
-                    p.solve(verbose=verbose, solver=solver)
-
+                p.solve(verbose=verbose, solver=solver)
                 if SOLVERS[solver].EXP_CAPABLE:
                     p = Problem(Minimize(self.a), [log(self.a) >= 2])
-                    p.solve(verbose=verbose, solver=solver)
-
-                if SOLVERS[solver].SDP_CAPABLE:
-                    p = Problem(Minimize(self.a), [lambda_min(self.a) >= 2])
                     p.solve(verbose=verbose, solver=solver)
 
                 if solver == "ELEMENTAL":
@@ -352,7 +346,7 @@ class TestProblem(BaseTest):
         self.assertEqual(len(prob_sum.constraints), 1)
 
         # Test Minimize + Maximize
-        with self.assertRaises(DCPError) as cm:
+        with self.assertRaises(Exception) as cm:
             prob_bad_sum = prob1 + prob3
         self.assertEqual(str(cm.exception), "Problem does not follow DCP rules.")
 
@@ -385,40 +379,6 @@ class TestProblem(BaseTest):
         combo3 = prob1 + 0 * prob2 - 3 * prob3
         combo3_ref = Problem(Minimize(self.a + 3 * pow(self.b + self.a, 2)), [self.a >= self.b, self.a >= 1, self.b >= 3])
         self.assertAlmostEqual(combo3.solve(), combo3_ref.solve())
-
-    # Test solving problems in parallel.
-    def test_solve_parallel(self):
-        p = Parameter()
-        problem = Problem(Minimize(square(self.a) + square(self.b) + p),
-                          [self.b >= 2, self.a >= 1])
-        p.value = 1
-        # Ensure that parallel solver still works after repeated calls
-        for _ in range(2):
-            result = problem.solve(parallel=True)
-            self.assertAlmostEqual(result, 6.0)
-            self.assertEqual(problem.status, s.OPTIMAL)
-            self.assertAlmostEqual(self.a.value, 1)
-            self.assertAlmostEqual(self.b.value, 2)
-            self.a.value = 0
-            self.b.value = 0
-        # The constant p should not be a separate problem, but rather added to
-        # the first separable problem.
-        self.assertTrue(len(problem._separable_problems) == 2)
-
-        # Ensure that parallel solver works with options.
-        result = problem.solve(parallel=True, verbose=True, warm_start=True)
-        self.assertAlmostEqual(result, 6.0)
-        self.assertEqual(problem.status, s.OPTIMAL)
-        self.assertAlmostEqual(self.a.value, 1)
-        self.assertAlmostEqual(self.b.value, 2)
-
-        # Ensure that parallel solver works when problem changes.
-        problem.objective = Minimize(square(self.a) + square(self.b))
-        result = problem.solve(parallel=True)
-        self.assertAlmostEqual(result, 5.0)
-        self.assertEqual(problem.status, s.OPTIMAL)
-        self.assertAlmostEqual(self.a.value, 1)
-        self.assertAlmostEqual(self.b.value, 2)
 
     # Test scalar LP problems.
     def test_scalar_lp(self):
@@ -492,13 +452,13 @@ class TestProblem(BaseTest):
 
     # Test vector LP problems.
     def test_vector_lp(self):
-        c = Constant(matrix([1,2])).value
+        c = matrix([1,2])
         p = Problem(Minimize(c.T*self.x), [self.x >= c])
         result = p.solve()
         self.assertAlmostEqual(result, 5)
         self.assertItemsAlmostEqual(self.x.value, [1,2])
 
-        A = Constant(matrix([[3,5],[1,2]])).value
+        A = matrix([[3,5],[1,2]])
         I = Constant([[1,0],[0,1]])
         p = Problem(Minimize(c.T*self.x + self.a),
             [A*self.x >= [-1,1],
@@ -515,7 +475,7 @@ class TestProblem(BaseTest):
     def test_ecos_noineq(self):
         """Test ECOS with no inequality constraints.
         """
-        T = Constant(matrix(1, (2, 2))).value
+        T = matrix(1, (2, 2))
         p = Problem(Minimize(1), [self.A == T])
         result = p.solve(solver=s.ECOS)
         self.assertAlmostEqual(result, 1)
@@ -523,14 +483,14 @@ class TestProblem(BaseTest):
 
     # Test matrix LP problems.
     def test_matrix_lp(self):
-        T = Constant(matrix(1, (2, 2))).value
+        T = matrix(1, (2, 2))
         p = Problem(Minimize(1), [self.A == T])
         result = p.solve()
         self.assertAlmostEqual(result, 1)
         self.assertItemsAlmostEqual(self.A.value, T)
 
-        T = Constant(matrix(2,(2,3))).value
-        c = Constant(matrix([3,4])).value
+        T = matrix(2,(2,3))
+        c = matrix([3,4])
         p = Problem(Minimize(1), [self.A >= T*self.C,
             self.A == self.B, self.C == T.T])
         result = p.solve()
@@ -793,35 +753,6 @@ class TestProblem(BaseTest):
         result = p.solve()
         self.assertAlmostEqual(result, 12)
         self.assertItemsAlmostEqual(self.x.value, self.z.value)
-
-    def test_non_python_int_index(self):
-        """Test problems that have special types as indices.
-        """
-        import sys
-        if sys.version_info > (3,):
-            my_long = int
-        else:
-            my_long = long
-        # Test with long indices.
-        cost = self.x[0:my_long(2)][0]
-        p = Problem(Minimize(cost), [self.x == 1])
-        result = p.solve()
-        self.assertAlmostEqual(result, 1)
-        self.assertItemsAlmostEqual(self.x.value, [1,1])
-
-        # Test with numpy64 indices.
-        cost = self.x[0:numpy.int64(2)][0]
-        p = Problem(Minimize(cost), [self.x == 1])
-        result = p.solve()
-        self.assertAlmostEqual(result, 1)
-        self.assertItemsAlmostEqual(self.x.value, [1,1])
-
-        # Test with float.
-        cost = self.x[numpy.float32(0)]
-        p = Problem(Minimize(cost), [self.x == 1])
-        result = p.solve()
-        self.assertAlmostEqual(result, 1)
-        self.assertItemsAlmostEqual(self.x.value, [1,1])
 
     # Test problems with slicing.
     def test_slicing(self):
@@ -1300,7 +1231,7 @@ class TestProblem(BaseTest):
     def test_change_constraints(self):
         """Test interaction of caching with changing constraints.
         """
-        prob = Problem(Minimize(self.a), [self.a == 2, self.a >= 1])
+        prob = Problem(Minimize(self.a), [self.a == 2])
         prob.solve()
         self.assertAlmostEqual(prob.value, 2)
 
@@ -1446,27 +1377,6 @@ class TestProblem(BaseTest):
         self.assertTrue(np.allclose(prob.value, geo_mean(list(x), p).value))
         self.assertTrue(np.allclose(prob.value, short_geo_mean(x, p)))
         self.assertTrue(np.allclose(x, x_true, 1e-3))
-
-        # the following 3 tests check vstack and hstack input to geo_mean
-        # the following 3 formulations should be equivalent
-        n = 5
-        x_true = np.ones(n)
-        x = Variable(n)
-
-        Problem(Maximize(geo_mean(x)), [x <= 1]).solve()
-        xval = np.array(x.value).flatten()
-        self.assertTrue(np.allclose(xval, x_true, 1e-3))
-
-        y = vstack(*[x[i] for i in range(n)])
-        Problem(Maximize(geo_mean(y)), [x <= 1]).solve()
-        xval = np.array(x.value).flatten()
-        self.assertTrue(np.allclose(xval, x_true, 1e-3))
-
-        y = hstack(*[x[i] for i in range(n)])
-        Problem(Maximize(geo_mean(y)), [x <= 1]).solve()
-        xval = np.array(x.value).flatten()
-        self.assertTrue(np.allclose(xval, x_true, 1e-3))
-
 
     def test_pnorm(self):
         import numpy as np

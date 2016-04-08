@@ -26,6 +26,7 @@ from ..expressions.variables import Variable
 from ..expressions.expression import Expression
 import abc
 import sys
+import numpy as np
 if sys.version_info >= (3, 0):
     from functools import reduce
 
@@ -174,18 +175,55 @@ class Atom(Expression):
                 # But if the atom is constant with non-constant
                 # arguments it doesn't depend on its arguments,
                 # so it isn't None.
-                arg_val = arg.value
-                if arg_val is None and not self.is_constant():
+                if arg.value is None and not self.is_constant():
                     return None
                 else:
-                    arg_values.append(arg_val)
+                    arg_values.append(arg.value)
             result = self.numeric(arg_values)
-
         # Reduce to a scalar if possible.
         if intf.size(result) == (1, 1):
             return intf.scalar_value(result)
         else:
             return result
+
+    @property
+    def gradient(self):
+        arg_values = []
+        for arg in self.args:
+            if arg.value is None and not self.is_constant():
+                return None
+            else:
+                arg_values.append(arg.value)
+        if self.curvature == 'CONSTANT':
+            return {}
+        grad_self = self.grad(arg_values)    # a list of gradients w.r.t. arguments
+        result = {}
+        for ind in range(len(self.args)):   # chain rule
+            if not self.args[ind].curvature == 'CONSTANT':
+                grad_arg = self.args[ind].gradient # a dictionary of gradients w.r.t. variables # partial arguement partial x
+                for key in grad_arg:
+                    img_shape = grad_self[ind].shape
+                    org_img_shape = grad_arg[key].shape
+                    D = np.zeros((org_img_shape[0],org_img_shape[1],img_shape[2],img_shape[3]))
+                    for col_ind in range(org_img_shape[1]):
+                        for col_img_ind in range(img_shape[3]):
+                            for i in range(img_shape[1]):
+                                D[:,col_ind,:,col_img_ind] += np.dot(grad_arg[key][:,col_ind,:,i],grad_self[ind][:,i,:,col_img_ind])
+                    if key in result:
+                        #result[key] += np.dot(grad_arg[key], grad_self[ind])
+                        result[key] += D
+                    else:
+                        #result[key] = np.dot(grad_arg[key], grad_self[ind])
+                        result[key] = D
+        return result
+
+    @property
+    def domain(self):
+        dom =[]
+        for arg in self.args:
+            for dom_sub in arg.domain:
+                dom.append(dom_sub)
+        return dom
 
     # Wraps an atom's numeric function that requires numpy ndarrays as input.
     # Ensures both inputs and outputs are the correct matrix types.

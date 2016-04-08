@@ -27,6 +27,9 @@ class EqConstraint(LeqConstraint):
     def is_dcp(self):
         return self._expr.is_affine()
 
+    def split(self):
+        return [self.args[0]<=self.args[1], self.args[1]<=self.args[0]]
+
     @property
     def value(self):
         """Does the constraint hold?

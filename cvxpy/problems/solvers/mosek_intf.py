@@ -30,7 +30,7 @@ class MOSEK(Solver):
     # Solver capabilities.
     LP_CAPABLE = True
     SOCP_CAPABLE = True
-    SDP_CAPABLE = True
+    SDP_CAPABLE = False # for now only SOCP
     EXP_CAPABLE = False
     MIP_CAPABLE = False
 
@@ -117,29 +117,15 @@ class MOSEK(Solver):
 
         # size of problem
         numvar = len(c) + sum(dims[s.SOC_DIM])
-        numcon = len(b) + dims[s.LEQ_DIM] + sum(dims[s.SOC_DIM]) + \
-            sum([el**2 for el in dims[s.SDP_DIM]])
-
-        # otherwise it crashes on empty probl.
-        if numvar == 0:
-            result_dict = {s.STATUS:s.OPTIMAL}
-            result_dict[s.PRIMAL] = []
-            result_dict[s.VALUE] = 0. + data[s.OFFSET]
-            result_dict[s.EQ_DUAL] = []
-            result_dict[s.INEQ_DUAL] = []
-            return result_dict
+        numcon = len(b) + dims[s.LEQ_DIM] + sum(dims[s.SOC_DIM])
 
         # objective
         task.appendvars(numvar)
         task.putclist(np.arange(len(c)), c)
         task.putvarboundlist(np.arange(numvar, dtype=int),
                              [mosek.boundkey.fr]*numvar,
-                              np.zeros(numvar),
-                              np.zeros(numvar))
-
-        # SDP variables
-        if sum(dims[s.SDP_DIM]) > 0:
-            task.appendbarvars(dims[s.SDP_DIM])
+                             np.zeros(numvar),
+                             np.zeros(numvar))
 
         # linear equality and linear inequality constraints
         task.appendcons(numcon)
@@ -154,8 +140,7 @@ class MOSEK(Solver):
 
         type_constraint = [mosek.boundkey.fx] * len(b)
         type_constraint += [mosek.boundkey.up] * dims[s.LEQ_DIM]
-        type_constraint += [mosek.boundkey.fx] * (sum(dims[s.SOC_DIM])+ \
-                                sum([el**2 for el in dims[s.SDP_DIM]]))
+        type_constraint += [mosek.boundkey.fx] * (sum(dims[s.SOC_DIM]))
 
         task.putconboundlist(np.arange(numcon, dtype=int),
                              type_constraint,
@@ -166,7 +151,7 @@ class MOSEK(Solver):
         current_var_index = len(c)
         current_con_index = len(b) + dims[s.LEQ_DIM]
 
-        for size_cone in dims[s.SOC_DIM]:
+        for size_cone in dims['q']:
             row,col,el = sp.find(sp.eye(size_cone))
             row += current_con_index
             col += current_var_index
@@ -178,19 +163,6 @@ class MOSEK(Solver):
                                       current_var_index + size_cone))
             current_con_index += size_cone
             current_var_index += size_cone
-
-        #SDP
-        for num_sdp_var, size_matrix in enumerate(dims[s.SDP_DIM]):
-            for i_sdp_matrix in range(size_matrix):
-                for j_sdp_matrix in range(size_matrix):
-                    task.putbaraij(current_con_index,
-                                   num_sdp_var,
-                                   [task.appendsparsesymmat(size_matrix,
-                                             [max(i_sdp_matrix, j_sdp_matrix)],
-                                             [min(i_sdp_matrix, j_sdp_matrix)],
-                            [1. if (i_sdp_matrix == j_sdp_matrix) else .5])],
-                                   [1.0])
-                    current_con_index += 1
 
         # solve
         task.putobjsense(mosek.objsense.minimize)

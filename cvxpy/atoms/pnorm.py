@@ -18,17 +18,15 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from cvxpy.atoms.atom import Atom
-from cvxpy.atoms.axis_atom import AxisAtom
 import cvxpy.utilities as u
 import cvxpy.lin_ops.lin_utils as lu
 import numpy as np
 from ..utilities.power_tools import pow_high, pow_mid, pow_neg, gm_constrs
 from cvxpy.constraints.second_order import SOC
-from cvxpy.constraints.soc_elemwise import SOC_Elemwise
 from fractions import Fraction
 
 
-class pnorm(AxisAtom):
+class pnorm(Atom):
     r"""The vector p-norm.
 
     If given a matrix variable, ``pnorm`` will treat it as a vector, and compute the p-norm
@@ -87,15 +85,13 @@ class pnorm(AxisAtom):
     max_denom : int
         The maximum denominator considered in forming a rational approximation for ``p``.
 
-    axis : 0 or 1
-           The axis to apply the norm to.
-
     Returns
     -------
     Expression
         An Expression representing the norm.
     """
-    def __init__(self, x, p=2, axis=None, max_denom=1024):
+
+    def __init__(self, x, p=2, max_denom=1024):
         p_old = p
         if p in ('inf', 'Inf', np.inf):
             self.p = np.inf
@@ -110,47 +106,65 @@ class pnorm(AxisAtom):
         else:
             raise ValueError('Invalid p: {}'.format(p))
 
-        super(pnorm, self).__init__(x, axis=axis)
+        super(pnorm, self).__init__(x)
 
         if self.p == np.inf:
             self.approx_error = 0
         else:
             self.approx_error = float(abs(self.p - p_old))
 
-
     @Atom.numpy_numeric
     def numeric(self, values):
         """Returns the p-norm of x.
         """
-
-        if self.axis is None:
-            values = np.array(values[0]).flatten()
-        else:
-            values = np.array(values[0])
+        values = np.array(values[0]).flatten()
 
         if self.p < 1 and np.any(values < 0):
+            print "value out of domain", min(values)
             return -np.inf
 
         if self.p < 0 and np.any(values == 0):
             return 0.0
 
-        retval = np.linalg.norm(values, float(self.p), axis=self.axis)
+        return np.linalg.norm(values, float(self.p))
 
-        # NOTE: workaround for NumPy <=1.9 and no keepdims for norm()
-        if self.axis is not None:
-            if self.axis == 0:
-                retval = np.reshape(retval, (1, self.args[0].size[1]))
-            else:  # self.axis == 1:
-                retval = np.reshape(retval, (self.args[0].size[0], 1))
+    def grad(self, values):
+        """Returns the gradient of p-norm of x at a point x = values[0].
+           Restrict to vectors
+        """
+        if self.p == 1:
+            result = np.matrix(map(lambda x: 1 if x else 0, np.matrix(values[0])>0))
+            result = result - np.matrix(map(lambda x: 1 if x else 0,np.matrix(values[0])<0))
+            return [result.T]
+        #value = np.array(values[0]).flatten() ## only one argument
+        value = np.matrix(values[0])
+        denominator = np.linalg.norm(value, float(self.p))
+        denominator = np.power(denominator, self.p - 1)
+        rows, cols = np.matrix(values[0]).shape
+        result = np.zeros((rows,cols,1,1))
+        if denominator == 0:
+            if self.p>=1:
+                return [result]
+            else:
+                return [np.inf*np.ones((rows,cols,1,1))]
+        else:
+            nominator = np.power(np.matrix(values[0]), self.p - 1)
+            frac = np.divide(nominator, denominator)
+            result[:,:,0,0] = frac
+            return [result]
 
-        return retval
+    @property
+    def domain(self):
+        dom = self.args[0].domain
+        if self.p <1 and not self.p==0:
+            dom.append(self.args[0] >= 0)
+        return dom
 
 
-    def validate_arguments(self):
-        super(pnorm, self).validate_arguments()
-        if self.axis is not None and self.p != 2:
-            raise ValueError(
-                "The axis parameter is only supported for p=2.")
+    def shape_from_args(self):
+        """Resolves to a scalar.
+        """
+        return u.Shape(1, 1)
 
     def sign_from_args(self):
         """Always positive.
@@ -173,9 +187,8 @@ class pnorm(AxisAtom):
         else:
             return [u.monotonicity.INCREASING]
 
-
     def get_data(self):
-        return [self.p, self.axis]
+        return [self.p]
 
     def name(self):
         return "%s(%s, %s)" % (self.__class__.__name__,
@@ -266,29 +279,13 @@ class pnorm(AxisAtom):
 
         """
         p = data[0]
-        axis = data[1]
         x = arg_objs[0]
         t = lu.create_var((1, 1))
         constraints = []
 
         # first, take care of the special cases of p = 2, inf, and 1
         if p == 2:
-            if axis is None:
-                return t, [SOC(t, [x])]
-
-            elif axis == 0:
-                size = (1, x.size[1])
-                t = lu.create_var(size)
-                return t, [SOC_Elemwise(
-                    t, [lu.index(x, size, (slice(i, i+1), slice(0, x.size[1])))
-                        for i in range(x.size[0])])]
-
-            else:  # axis == 1
-                size = (x.size[0], 1)
-                t = lu.create_var(size)
-                return t, [SOC_Elemwise(
-                    t, [lu.index(x, size, (slice(0, x.size[0]), slice(i, i+1)))
-                        for i in range(x.size[1])])]
+            return t, [SOC(t, [x])]
 
         if p == np.inf:
             t_ = lu.promote(t, x.size)
@@ -315,11 +312,11 @@ class pnorm(AxisAtom):
         # is a nice tuple of fractions.
         p = Fraction(p)
         if p < 0:
-            constraints += gm_constrs(t_, [x, r],  (-p/(1-p), 1/(1-p)))
+            constraints += gm_constrs(t_, [x, r], (-p / (1 - p), 1 / (1 - p)))
         if 0 < p < 1:
-            constraints += gm_constrs(r,  [x, t_], (p, 1-p))
+            constraints += gm_constrs(r, [x, t_], (p, 1 - p))
         if p > 1:
-            constraints += gm_constrs(x,  [r, t_], (1/p, 1-1/p))
+            constraints += gm_constrs(x, [r, t_], (1 / p, 1 - 1 / p))
 
         return t, constraints
 

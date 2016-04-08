@@ -17,16 +17,12 @@ You should have received a copy of the GNU General Public License
 along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from cvxpy.expressions.constants.constant import Constant
 from cvxpy.atoms.affine.affine_atom import AffAtom
-from cvxpy.atoms.affine.vec import vec
-from cvxpy.atoms.affine.reshape import reshape
-import cvxpy.interface as intf
 import cvxpy.utilities as u
 from cvxpy.utilities import key_utils as ku
 import cvxpy.lin_ops.lin_utils as lu
-import scipy.sparse as sp
 import numpy as np
+import scipy as scipy
 
 class index(AffAtom):
     """ Indexing/slicing into a matrix. """
@@ -45,6 +41,28 @@ class index(AffAtom):
     @AffAtom.numpy_numeric
     def numeric(self, values):
         return values[0][self.key]
+
+    def grad(self, values):
+        #restricting to vectors
+        value = np.matrix(values[0])
+        imag = values[0][self.key]
+        rows, cols = value.shape
+        rows_im, cols_im = imag.shape
+        result = np.zeros((rows,cols,rows_im,cols_im))
+        start = self.key[1].start
+        stop = self.key[1].stop
+        step = self.key[1].step
+        if step == None:
+            step = 1
+        if start == None:
+            start = 0
+        if stop == None:
+            stop = cols
+        s = range(start, stop, step)
+        D = np.eye(rows)[self.key[0]].T # a rows by len(self.key[0]) matrix
+        for d in range(cols_im):
+            result[:,s[d],:,d] = D
+        return [result]
 
     def shape_from_args(self):
         """Returns the shape of the index expression.
@@ -76,35 +94,6 @@ class index(AffAtom):
         """
         obj = lu.index(arg_objs[0], size, data[0])
         return (obj, [])
-
-    @staticmethod
-    def get_special_slice(expr, key):
-        """Indexing using logical indexing or a list of indices.
-
-        Parameters
-        ----------
-        expr : Expression
-            The expression being indexed/sliced into.
-        key : tuple
-            ndarrays or lists.
-        Returns
-        -------
-        Expression
-            An expression representing the index/slice.
-        """
-        expr = index.cast_to_const(expr)
-        # Order the entries of expr and select them using key.
-        idx_mat = np.arange(expr.size[0]*expr.size[1])
-        idx_mat = np.reshape(idx_mat, expr.size, order='F')
-        select_mat = idx_mat[key]
-        if select_mat.ndim == 2:
-            final_size = select_mat.shape
-        else: # Always cast 1d arrays as column vectors.
-            final_size = (select_mat.size, 1)
-        select_vec = np.reshape(select_mat, select_mat.size, order='F')
-        # Select the chosen entries from expr.
-        identity = sp.eye(expr.size[0]*expr.size[1]).tocsc()
-        return reshape(identity[select_vec]*vec(expr), *final_size)
 
     @staticmethod
     def get_index(matrix, constraints, row, col):

@@ -57,6 +57,17 @@ class Constant(Leaf):
     def value(self):
         return self._value
 
+
+    @property
+    def gradient(self):
+        rows,cols = self.value.shape
+        return {self:np.zeros((rows,cols,rows,cols))}
+
+
+    @property
+    def domain(self):
+        return[]
+
     # Return the DCP attributes of the constant.
     def init_dcp_attr(self):
         shape = u.Shape(*intf.size(self.value))

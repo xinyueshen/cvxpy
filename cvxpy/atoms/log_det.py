@@ -48,6 +48,19 @@ class log_det(Atom):
         else:
             return -np.inf
 
+    def grad(self, values):
+        value = np.matrix(values[0])
+        shape = value.shape
+        result = np.zeros((shape[0],shape[1],1,1))
+        result[:,:,0,0] = np.transpose(np.linalg.inv(value))
+        return [result]
+
+    @property
+    def domain(self):
+        dom = self.args[0].domain
+        dom.append(self.args[0] >> 0)
+        return dom
+
     # Resolves to a scalar.
     def shape_from_args(self):
         return u.Shape(1,1)

@@ -71,6 +71,14 @@ class Parameter(Leaf):
         """
         return [self]
 
+    @property
+    def domain(self):
+        dom =[]
+        for arg in self.args:
+            for dom_sub in arg.domain:
+                dom.append(dom_sub)
+        return dom
+
     def canonicalize(self):
         """Returns the graph implementation of the object.
 

@@ -24,6 +24,7 @@ from cvxpy.expressions.constants import Constant
 import cvxpy.interface as intf
 import cvxpy.lin_ops.lin_utils as lu
 import operator as op
+import numpy as np
 if sys.version_info >= (3, 0):
     from functools import reduce
 
@@ -58,6 +59,24 @@ class AddExpression(AffAtom):
 
     def numeric(self, values):
         return reduce(op.add, values)
+
+    def grad(self, values):
+        #result = {}
+        #for arg in self.args: #for each argument
+        #    arg_g = arg.gradient
+        #    for key in arg_g: #for each variable
+        #        if key in result: #if it exists in the result
+        #            result[key] += arg_g[key]
+        #        else:
+        #            result[key] = arg_g[key]
+        result = []
+        for arg in self.args:
+            rows, cols = arg.size
+            D = np.zeros((rows,cols,rows,cols))
+            for d in range(cols):
+                D[:,d,:,d] = np.eye(rows)
+            result.append(D)
+        return result
 
     # As __init__ takes in the arg_groups instead of args, we need a special
     # copy() function.

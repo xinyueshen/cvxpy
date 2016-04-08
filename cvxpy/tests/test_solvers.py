@@ -129,7 +129,7 @@ class TestSolvers(BaseTest):
             int_var = Int()
             prob = Problem(Minimize(norm(self.x, 1)),
                         [self.x == bool_var, bool_var == 0])
-            prob.solve(solver = GLPK_MI, verbose=True)
+            prob.solve(solver = GLPK_MI)
             self.assertAlmostEqual(prob.value, 0)
             self.assertAlmostEqual(bool_var.value, 0)
             self.assertItemsAlmostEqual(self.x.value, [0, 0])
@@ -143,7 +143,7 @@ class TestSolvers(BaseTest):
                             int_var == 3*bool_var,
                             int_var == 3]
             prob = Problem(objective, constraints)
-            prob.solve(solver = GLPK_MI, verbose=True)
+            prob.solve(solver = GLPK_MI)
             self.assertAlmostEqual(prob.value, -9)
             self.assertAlmostEqual(int_var.value, 3)
             self.assertAlmostEqual(bool_var.value, 1)
@@ -397,34 +397,6 @@ class TestSolvers(BaseTest):
                 prob = Problem(Minimize(norm(self.x, 1)), [self.x == 0])
                 prob.solve(solver = MOSEK)
             self.assertEqual(str(cm.exception), "The solver %s is not installed." % MOSEK)
-
-    def test_mosek_sdp(self):
-        """Make sure Mosek's dual result matches other solvers
-        """
-        # TODO: should work with PSDConstraint (>>, <<).
-        if MOSEK in installed_solvers():
-            import numpy as np
-            import cvxpy as cvx
-            # Test optimality gap for equilibration.
-            m = 3
-            n = 3
-            Art = np.random.randn(n,n)
-            A = Art.T.dot(Art)
-            Ainv = np.linalg.inv(A)
-
-            t = Variable()
-            Z = Variable(n,n)
-            d = Variable(n)
-            D = diag(d)
-            constr = [Art*D*Art.T - np.eye(n) == Semidef(n), Semidef(n) == t*np.eye(n) - Art*D*Art.T, d >= 0]
-            prob = Problem(Minimize(t), constr)
-            prob.solve(solver=MOSEK)
-        else:
-            with self.assertRaises(Exception) as cm:
-                prob = Problem(Minimize(norm(self.x, 1)), [self.x == 0])
-                prob.solve(solver = MOSEK)
-            self.assertEqual(str(cm.exception), "The solver %s is not installed." % MOSEK)
-
 
     def test_gurobi_warm_start(self):
         """Make sure that warm starting Gurobi behaves as expected

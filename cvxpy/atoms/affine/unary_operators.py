@@ -20,6 +20,7 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 from cvxpy.atoms.affine.affine_atom import AffAtom
 import cvxpy.lin_ops.lin_utils as lu
 import operator as op
+import numpy as np
 
 class UnaryOperator(AffAtom):
     """
@@ -42,6 +43,17 @@ class UnaryOperator(AffAtom):
 class NegExpression(UnaryOperator):
     OP_NAME = "-"
     OP_FUNC = op.neg
+
+    def grad(self, values):
+        rows, cols = np.matrix(values[0]).shape
+        D = np.zeros((rows, cols, rows, cols))
+        for d in range(cols):
+            D[:,d,:,d] = -np.eye(rows)
+        return [D]
+
+    @property
+    def domain(self):
+        return []
 
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):

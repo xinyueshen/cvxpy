@@ -19,8 +19,9 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 
 from ... import settings as s
 from ... import utilities as u
-from ..leaf import Leaf
+from cvxpy.expressions.leaf import Leaf
 import cvxpy.lin_ops.lin_utils as lu
+import numpy as np
 
 class Variable(Leaf):
     """ The base variable class """
@@ -62,6 +63,17 @@ class Variable(Leaf):
     @property
     def value(self):
         return self.primal_value
+
+    @property
+    def gradient(self):
+        D = np.zeros((self._rows, self._cols, self._rows, self._cols))
+        for d in range(self._cols):
+            D[:,d,:,d] = np.eye(self._rows)
+        return {self: D}
+
+    @property
+    def domain(self):
+        return []
 
     @value.setter
     def value(self, val):

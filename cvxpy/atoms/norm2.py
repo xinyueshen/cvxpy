@@ -22,3 +22,4 @@ from cvxpy.atoms.pnorm import pnorm
 
 def norm2(x):
     return pnorm(x, 2)
+

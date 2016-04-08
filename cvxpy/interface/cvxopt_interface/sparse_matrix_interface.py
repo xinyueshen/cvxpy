@@ -40,17 +40,16 @@ class SparseMatrixInterface(DenseMatrixInterface):
         Returns:
             A matrix of type self.target_matrix or a scalar.
         """
-        if isinstance(value, (numpy.ndarray, numpy.matrix)):
-            return cvxopt.sparse(cvxopt.matrix(value.astype('float64')), tc='d')
-        elif isinstance(value, numbers.Number):
+        if isinstance(value, (numpy.ndarray, numbers.Number)):
             return cvxopt.sparse(cvxopt.matrix(value), tc='d')
         # Convert scipy sparse matrices to coo form first.
-        elif sp.issparse(value):
+        if sp.issparse(value):
             value = value.tocoo()
-            return cvxopt.spmatrix(value.data.tolist(), value.row.tolist(),
-                value.col.tolist(), size=value.shape, tc='d')
-        else: # Lists.
-            return cvxopt.sparse(value, tc='d')
+            V = value.data
+            I = value.row
+            J = value.col
+            return cvxopt.spmatrix(V, I, J, value.shape, tc='d')
+        return cvxopt.sparse(value, tc='d')
 
     # Return an identity matrix.
     def identity(self, size):

@@ -19,7 +19,7 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 
 # Tests atoms by calling them with a constant value.
 from cvxpy.settings import (SCS, ECOS, CVXOPT, GLPK, ELEMENTAL,
-    OPTIMAL, OPTIMAL_INACCURATE, ROBUST_KKTSOLVER, MOSEK)
+    OPTIMAL, ROBUST_KKTSOLVER)
 from cvxpy.problems.solvers.utilities import installed_solvers
 from cvxpy.atoms import *
 from cvxpy.atoms.affine.binary_operators import MulExpression
@@ -28,7 +28,6 @@ from cvxpy.problems.problem import Problem
 from cvxpy.problems.solvers.utilities import SOLVERS
 from cvxpy.expressions.variables import Variable
 from cvxpy.expressions.constants import Constant, Parameter
-from cvxpy.error import SolverError
 import cvxpy.interface as intf
 import cvxopt
 import numpy as np
@@ -47,24 +46,11 @@ if ELEMENTAL in installed_solvers():
     SOLVERS_TO_TRY.append(ELEMENTAL)
     SOLVER_TO_TOL[ELEMENTAL] = 1e-7
 
-# Test MOSEK if installed.
-if MOSEK in installed_solvers():
-    SOLVERS_TO_TRY.append(MOSEK)
-    SOLVER_TO_TOL[MOSEK] = 1e-6
-
 v = cvxopt.matrix([-1,2,-2], tc='d')
 v_np = np.matrix([-1.,2,-2]).T
 
-# Defined here to be used in KNOWN_SOLVER_ERRORS
-log_sum_exp_axis_0 = lambda x: log_sum_exp(x, axis=0)
-log_sum_exp_axis_1 = lambda x: log_sum_exp(x, axis=1)
-
 # Atom, solver pairs known to fail.
-KNOWN_SOLVER_ERRORS = [
-    # See https://github.com/cvxgrp/cvxpy/issues/249
-    (log_sum_exp_axis_0, CVXOPT),
-    (log_sum_exp_axis_1, CVXOPT),
-]
+KNOWN_SOLVER_ERRORS = []
 
 atoms = [
     ([
@@ -84,7 +70,6 @@ atoms = [
             Constant([[1,1.0/2],[1.0/3,1.0/4]])),
         (kl_div, (1, 1), [math.e, 1], Constant([1])),
         (kl_div, (1, 1), [math.e, math.e], Constant([0])),
-        (kl_div, (2, 1), [ [math.e,1], 1], Constant([1,0])),
         (lambda x: kron(np.matrix("1 2; 3 4"), x), (4, 4), [np.matrix("5 6; 7 8")],
             Constant(np.kron(np.matrix("1 2; 3 4").A, np.matrix("5 6; 7 8").A))),
         (lambda_max, (1, 1), [ [[2,0],[0,1]] ], Constant([2])),
@@ -92,8 +77,6 @@ atoms = [
         (lambda_max, (1, 1), [ [[5,7],[7,-3]] ], Constant([9.06225775])),
         (lambda x: lambda_sum_largest(x, 2), (1, 1), [ [[1, 2, 3], [2,4,5], [3,5,6]] ], Constant([11.51572947])),
         (log_sum_exp, (1, 1), [ [[5, 7], [0, -3]] ], Constant([7.1277708268])),
-        (log_sum_exp_axis_0, (1,2), [ [[5, 7, 1], [0, -3, 6]] ], Constant([7.12910890, 6.00259878]).T),
-        (log_sum_exp_axis_1, (3,1), [ [[5, 7, 1], [0, -3, 6]] ], Constant([5.00671535, 7.0000454, 6.0067153])),
         (logistic, (2, 2),
          [
              [[math.log(5), math.log(7)],
@@ -109,18 +92,11 @@ atoms = [
                             [[67, 78, 90],
                              [78, 94, 108],
                              [90, 108, 127]] ], Constant([0.46557377049180271])),
-        (matrix_frac, (1, 1), [ [[1, 2, 3],
-                                 [4, 5, 6]],
-                                [[67, 78, 90],
-                                 [78, 94, 108],
-                                 [90, 108, 127]] ], Constant([0.768852459016])),
         (max_elemwise, (2, 1), [ [-5,2],[-3,1],0,[-1,2] ], Constant([0,2])),
         (max_elemwise, (2, 2), [ [[-5,2],[-3,1]],0,[[5,4],[-1,2]] ],
             Constant([[5,4],[0,2]])),
         (max_entries, (1, 1), [ [[-5,2],[-3,1]] ], Constant([2])),
         (max_entries, (1, 1), [ [-5,-10] ], Constant([-5])),
-        (lambda x: max_entries(x, axis=0), (1, 2), [ [[-5,2],[-3,1]] ], Constant([2, 1]).T),
-        (lambda x: max_entries(x, axis=1), (2, 1), [ [[-5,2],[-3,1]] ], Constant([-3, 2])),
         (lambda x: norm(x, 2), (1, 1), [v], Constant([3])),
         (lambda x: norm(x, "fro"), (1, 1), [ [[-1, 2],[3, -4]] ],
             Constant([5.47722557])),
@@ -148,8 +124,6 @@ atoms = [
         (pnorm, (1, 1), [[1, 2, 3]], Constant([3.7416573867739413])),
         (lambda x: pnorm(x, 1), (1, 1), [[1.1, 2, -3]], Constant([6.1])),
         (lambda x: pnorm(x, 2), (1, 1), [[1.1, 2, -3]], Constant([3.7696153649941531])),
-        (lambda x: pnorm(x, 2, axis=0), (1, 2), [ [[1,2],[3,4]] ], Constant([math.sqrt(5), 5.]).T),
-        (lambda x: pnorm(x, 2, axis=1), (2, 1), [ [[1,2],[4,5]] ], Constant([math.sqrt(17), math.sqrt(29)])),
         (lambda x: pnorm(x, 'inf'), (1, 1), [[1.1, 2, -3]], Constant([3])),
         (lambda x: pnorm(x, 3), (1, 1), [[1.1, 2, -3]], Constant([3.3120161866074733])),
         (lambda x: pnorm(x, 5.6), (1, 1), [[1.1, 2, -3]], Constant([3.0548953718931089])),
@@ -173,9 +147,6 @@ atoms = [
         (lambda x: norm(x, 2), (1, 1), [ [[3,4,5],[6,7,8],[9,10,11]] ], Constant([22.368559552680377])),
         (lambda x: scalene(x, 2, 3), (2, 2), [ [[-5,2],[-3,1]] ], Constant([[15,4],[9,2]])),
         (square, (2, 2), [ [[-5,2],[-3,1]] ], Constant([[25,4],[9,1]])),
-        (sum_entries, (1,1), [ [[-5,2],[-3,1]] ], Constant(-5)),
-        (lambda x: sum_entries(x, axis=0), (1,2), [ [[-5,2],[-3,1]] ], Constant([[-3], [-2]])),
-        (lambda x: sum_entries(x, axis=1), (2,1), [ [[-5,2],[-3,1]] ], Constant([-8, 3])),
         (lambda x: (x + Constant(0))**2, (2, 2), [ [[-5,2],[-3,1]] ], Constant([[25,4],[9,1]])),
         (lambda x: sum_largest(x, 3), (1, 1), [ [1,2,3,4,5] ], Constant([5+4+3])),
         (lambda x: sum_largest(x, 3), (1, 1), [ [[3,4,5],[6,7,8],[9,10,11]] ], Constant([9+10+11])),
@@ -189,11 +160,6 @@ atoms = [
             Constant([LA.norm([7, -1, -8, 2, -10, 7])])),
         (tv, (1, 1), [ [[3,4,5],[6,7,8],[9,10,11]] ], Constant([4*math.sqrt(10)])),
         (upper_tri, (3, 1), [ [[3,4,5],[6,7,8],[9,10,11]] ], Constant([6, 9, 10])),
-        # Advanced indexing.
-        (lambda x: x[[1,2], [0,2]], (2, 1), [ [[3,4,5],[6,7,8],[9,10,11]] ], Constant([4, 11])),
-        (lambda x: x[[1,2]], (2, 1), [ [[3,4,5],[6,7,8]] ], Constant([[4,5], [7,8]])),
-        (lambda x: x[np.array([[3,4,5],[6,7,8]]).T % 2 == 0], (2, 1), [ [[3,4,5],[6,7,8]] ],
-                     Constant([6,4,8])),
     ], Minimize),
     ([
         (entr, (2, 2), [ [[1, math.e],[math.e**2, 1.0/math.e]] ],
@@ -268,18 +234,11 @@ def run_atom(atom, problem, obj_val, solver):
     if check_solver(problem, solver):
         print("solver", solver)
         tolerance = SOLVER_TO_TOL[solver]
-
-        try:
-            if solver == ROBUST_CVXOPT:
-                result = problem.solve(solver=CVXOPT, verbose=False, kktsolver=ROBUST_KKTSOLVER)
-            else:
-                result = problem.solve(solver=solver, verbose=True)
-        except SolverError as e:
-            if (atom, solver) in KNOWN_SOLVER_ERRORS:
-                return
-            raise e
-
-        if problem.status in [OPTIMAL, OPTIMAL_INACCURATE]:
+        if solver == ROBUST_CVXOPT:
+            result = problem.solve(solver=CVXOPT, verbose=False, kktsolver=ROBUST_KKTSOLVER)
+        else:
+            result = problem.solve(solver=solver, verbose=False)
+        if problem.status is OPTIMAL:
             print(result)
             print(obj_val)
             assert( -tolerance <= (result - obj_val)/(1+np.abs(obj_val)) <= tolerance )

@@ -44,7 +44,7 @@ class BinaryOperator(AffAtom):
 
     # Applies the binary operator to the values.
     def numeric(self, values):
-        return reduce(self.OP_FUNC, values)
+        return self.OP_FUNC(values[0], values[1])
 
     # Sets the sign, curvature, and shape.
     def init_dcp_attr(self):
@@ -59,6 +59,16 @@ class BinaryOperator(AffAtom):
 class MulExpression(BinaryOperator):
     OP_NAME = "*"
     OP_FUNC = op.mul
+
+    def grad(self,values):
+        # vector
+        l_rows, l_cols = np.matrix(values[0]).shape
+        rows, cols = np.matrix(values[1]).shape
+        if self.args[0].curvature == 'CONSTANT' and not self.args[1].curvature == 'CONSTANT': # left multiplication
+            result = np.zeros((rows,cols,l_rows,cols))
+            for cols_ind in range(cols):
+                result[:,cols_ind,:,cols_ind] = np.matrix(np.transpose(values[0]))
+            return [np.zeros((l_rows,l_cols,l_rows,cols)), result]
 
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):
@@ -87,6 +97,15 @@ class MulExpression(BinaryOperator):
 class RMulExpression(MulExpression):
     """Multiplication by a constant on the right.
     """
+    def grad(self,values):
+        # vector
+        l_rows, l_cols = np.matrix(values[1]).shape
+        rows, cols = np.matrix(values[0]).shape
+        if self.args[1].curvature == 'CONSTANT' and not self.args[0].curvature == 'CONSTANT': # right multiplication
+            result = np.zeros((rows,cols,rows,l_cols))
+            for rows_ind in range(rows):
+                result[rows_ind,:,rows_ind,:] = np.matrix(values[1])
+            return [result, np.zeros((l_rows,l_cols,rows,l_cols))]
 
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):

@@ -102,9 +102,9 @@ class PartialProblem(Expression):
         """Determines the curvature, sign, and shape from the arguments.
         """
         sign = self.args[0].objective.args[0]._dcp_attr.sign
-        if type(self.args[0].objective) == Minimize:
+        if isinstance(self.args[0].objective, Minimize):
             curvature = u.curvature.Curvature.CONVEX
-        elif type(self.args[0].objective) == Maximize:
+        elif isinstance(self.args[0].objective, Maximize):
             curvature = u.curvature.Curvature.CONCAVE
         else:
             raise Exception(
@@ -203,9 +203,4 @@ class PartialProblem(Expression):
         -------
             A tuple of (affine expression, [constraints]).
         """
-        # Canonical form for objective and problem switches from minimize
-        # to maximize.
-        obj, constrs = self._prob.objective.args[0].canonical_form
-        for cons in self._prob.constraints:
-            constrs += cons.canonical_form[1]
-        return (obj, constrs)
+        return self._prob.canonical_form
