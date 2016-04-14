@@ -51,10 +51,6 @@ class NegExpression(UnaryOperator):
             D[:,d,:,d] = -np.eye(rows)
         return [D]
 
-    @property
-    def domain(self):
-        return []
-
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):
         """Negate the affine objective.
