@@ -219,7 +219,7 @@ class power(Elementwise):
         rows, cols = self.args[0].size
         result = np.zeros((rows,cols,rows,cols))
         if self.p<1:
-            if value.min()<0:
+            if value.min()<=0:
                 return [np.inf*np.ones((rows,cols,rows,cols))]
         for d in range(rows):
             result[d,0,d,0] = self.p*np.power(value[d],self.p-1)
