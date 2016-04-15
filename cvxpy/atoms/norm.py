@@ -22,42 +22,34 @@ from cvxpy.atoms.norm_nuc import normNuc
 from cvxpy.atoms.sigma_max import sigma_max
 from cvxpy.atoms.pnorm import pnorm
 
-class norm(pnorm):
+def norm(x, p=2, axis=None):
+    """Wrapper on the different norm atoms.
 
-    def __init__(self, x, p=2):
-        super(norm, self).__init__(x,p)
+    Parameters
+    ----------
+    x : Expression or numeric constant
+        The value to take the norm of.
+    p : int or str, optional
+        The type of norm.
 
-
-
-
-# def norm(x, p=2):
-#     """Wrapper on the different norm atoms.
-#
-#     Parameters
-#     ----------
-#     x : Expression or numeric constant
-#         The value to take the norm of.
-#     p : int or str, optional
-#         The type of norm.
-#
-#     Returns
-#     -------
-#     Expression
-#         An Expression representing the norm.
-#     """
-#     x = Expression.cast_to_const(x)
-#     if p == 1:
-#         return pnorm(x, 1)
-#     elif p == "inf":
-#         return pnorm(x, 'inf')
-#     elif p == "nuc":
-#         return normNuc(x)
-#     elif p == "fro":
-#         return pnorm(x, 2)
-#     elif p == 2:
-#         if x.is_matrix():
-#             return sigma_max(x)
-#         else:
-#             return pnorm(x, 2)
-#     else:
-#         return pnorm(x, p)
+    Returns
+    -------
+    Expression
+        An Expression representing the norm.
+    """
+    x = Expression.cast_to_const(x)
+    if p == 1:
+        return pnorm(x, 1, axis)
+    elif p == "inf":
+        return pnorm(x, 'inf', axis)
+    elif p == "nuc":
+        return normNuc(x)
+    elif p == "fro":
+        return pnorm(x, 2, axis)
+    elif p == 2:
+        if x.is_matrix():
+            return sigma_max(x)
+        else:
+            return pnorm(x, 2, axis)
+    else:
+        return pnorm(x, p, axis)

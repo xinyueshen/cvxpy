@@ -18,7 +18,7 @@ along with CVXPY.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from cvxpy.atoms.atom import Atom
-import cvxpy.utilities as u
+from cvxpy.atoms.axis_atom import AxisAtom
 import cvxpy.lin_ops.lin_utils as lu
 
 class max_entries(Atom):
@@ -39,19 +39,30 @@ class max_entries(Atom):
         return u.Shape(1, 1)
 
     def sign_from_args(self):
-        """Has the same sign as the argument.
+        """Returns sign (is positive, is negative) of the expression.
         """
-        return self.args[0]._dcp_attr.sign
+        # Same as argument.
+        return (self.args[0].is_positive(), self.args[0].is_negative())
 
-    def func_curvature(self):
-        """Default curvature is convex.
+    def is_atom_convex(self):
+        """Is the atom convex?
         """
-        return u.Curvature.CONVEX
+        return True
 
-    def monotonicity(self):
-        """Increasing in its arguments.
+    def is_atom_concave(self):
+        """Is the atom concave?
         """
-        return [u.monotonicity.INCREASING]
+        return False
+
+    def is_incr(self, idx):
+        """Is the composition non-decreasing in argument idx?
+        """
+        return True
+
+    def is_decr(self, idx):
+        """Is the composition non-increasing in argument idx?
+        """
+        return False
 
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):

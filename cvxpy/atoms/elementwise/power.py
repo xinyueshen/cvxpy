@@ -153,36 +153,94 @@ class power(Elementwise):
             return np.power(values[0], float(self.p))
 
     def sign_from_args(self):
+        """Returns sign (is positive, is negative) of the expression.
+        """
         if self.p == 1:
-            # same sign as input
-            return self.args[0]._dcp_attr.sign
+            # Same as input.
+            return (self.args[0].is_positive(), self.args[0].is_negative())
         else:
-            return u.Sign.POSITIVE
+            # Always positive.
+            return (True, False)
 
-    def func_curvature(self):
-        if self.p == 0:
-            return u.Curvature.CONSTANT
-        elif self.p == 1:
-            return u.Curvature.AFFINE
-        elif self.p < 0 or self.p > 1:
-            return u.Curvature.CONVEX
-        elif 0 < self.p < 1:
-            return u.Curvature.CONCAVE
+    def is_atom_convex(self):
+        """Is the atom convex?
+        """
+        # p == 0 is affine here.
+        return self.p <= 0 or self.p >= 1
 
-    def monotonicity(self):
-        if self.p == 0:
-            return [u.monotonicity.INCREASING]
-        if self.p == 1:
-            return [u.monotonicity.INCREASING]
-        if self.p < 0:
-            return [u.monotonicity.DECREASING]
-        if 0 < self.p < 1:
-            return [u.monotonicity.INCREASING]
-        if self.p > 1:
+    def is_atom_concave(self):
+        """Is the atom concave?
+        """
+        # p == 0 is affine here.
+        return 0 <= self.p <= 1
+
+    def is_constant(self):
+        """Is the expression constant?
+        """
+        return self.p == 0 or super(power, self).is_constant()
+
+    def is_incr(self, idx):
+        """Is the composition non-decreasing in argument idx?
+        """
+        if 0 <= self.p <= 1:
+            return True
+        elif self.p > 1:
             if is_power2(self.p):
-                return [u.monotonicity.SIGNED]
+                return self.args[idx].is_positive()
             else:
-                return [u.monotonicity.INCREASING]
+                return True
+        else:
+            return False
+
+    def is_decr(self, idx):
+        """Is the composition non-increasing in argument idx?
+        """
+        if self.p <= 0:
+            return True
+        elif self.p > 1:
+            if is_power2(self.p):
+                return self.args[idx].is_negative()
+            else:
+                return False
+        else:
+            return False
+
+    def _grad(self, values):
+        """Gives the (sub/super)gradient of the atom w.r.t. each argument.
+
+        Matrix expressions are vectorized, so the gradient is a matrix.
+
+        Args:
+            values: A list of numeric values for the arguments.
+
+        Returns:
+            A list of SciPy CSC sparse matrices or None.
+        """
+        rows = self.args[0].size[0]*self.args[0].size[1]
+        cols = self.size[0]*self.size[1]
+        if self.p == 0:
+            # All zeros.
+            return [sp.csc_matrix((rows, cols), dtype='float64')]
+        # Outside domain or on boundary.
+        if not is_power2(self.p) and np.min(values[0]) <= 0:
+            if self.p < 1:
+                # Non-differentiable.
+                return [None]
+            else:
+                # Round up to zero.
+                values[0] = np.maximum(values[0], 0)
+
+        grad_vals = self.p*np.power(values[0], self.p-1)
+        return [Elementwise.elemwise_grad_to_diag(grad_vals, rows, cols)]
+
+    def _domain(self):
+        """Returns constraints describing the domain of the node.
+        """
+        if (self.p < 1 and not self.p == 0) or \
+           (self.p > 1 and not is_power2(self.p)):
+            return [self.args[0] >= 0]
+        else:
+            return []
 
     def validate_arguments(self):
         pass

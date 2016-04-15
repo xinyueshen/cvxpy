@@ -26,7 +26,7 @@ def validate_key(key, shape):
 
     Args:
         key: The key used to index/slice.
-        shape: The shape of the expression.
+        shape: The shape (rows, cols) of the expression.
 
     Returns:
         The key as a tuple of slices.
@@ -34,7 +34,7 @@ def validate_key(key, shape):
     Raises:
         Error: Index/slice out of bounds.
     """
-    rows, cols = shape.size
+    rows, cols = shape
     # Change single indices for vectors into double indices.
     if not isinstance(key, tuple):
         if rows == 1:
@@ -44,7 +44,7 @@ def validate_key(key, shape):
         else:
             raise IndexError("Invalid index/slice.")
     # Change numbers into slices and ensure all slices have a start and step.
-    key = (format_slice(slc, dim) for slc, dim in zip(key, shape.size))
+    key = (format_slice(slc, dim) for slc, dim in zip(key, shape))
     return tuple(key)
 
 def format_slice(key_val, dim):
@@ -127,14 +127,14 @@ def size(key, shape):
 
     Args:
         key: The key used to index/slice.
-        shape: The shape of the expression.
+        shape: The shape (row, col) of the expression.
 
     Returns:
         The dimensions of the expression as (rows, cols).
     """
     dims = []
     for i in range(2):
-        selection = np.arange(shape.size[i])[key[i]]
+        selection = np.arange(shape[i])[key[i]]
         size = np.size(selection)
         dims.append(size)
     return tuple(dims)

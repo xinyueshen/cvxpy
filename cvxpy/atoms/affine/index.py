@@ -30,7 +30,7 @@ class index(AffAtom):
     # key - the index/slicing key (i.e. expr[key[0],key[1]]).
     def __init__(self, expr, key):
         # Format and validate key.
-        self.key = ku.validate_key(key, expr._dcp_attr.shape)
+        self.key = ku.validate_key(key, expr.size)
         super(index, self).__init__(expr)
 
     # The string representation of the atom.
@@ -42,32 +42,10 @@ class index(AffAtom):
     def numeric(self, values):
         return values[0][self.key]
 
-    def grad(self, values):
-        #restricting to vectors
-        value = np.matrix(values[0])
-        imag = values[0][self.key]
-        rows, cols = value.shape
-        rows_im, cols_im = imag.shape
-        result = np.zeros((rows,cols,rows_im,cols_im))
-        start = self.key[1].start
-        stop = self.key[1].stop
-        step = self.key[1].step
-        if step == None:
-            step = 1
-        if start == None:
-            start = 0
-        if stop == None:
-            stop = cols
-        s = range(start, stop, step)
-        D = np.eye(rows)[self.key[0]].T # a rows by len(self.key[0]) matrix
-        for d in range(cols_im):
-            result[:,s[d],:,d] = D
-        return [result]
-
-    def shape_from_args(self):
+    def size_from_args(self):
         """Returns the shape of the index expression.
         """
-        return u.Shape(*ku.size(self.key, self.args[0]._dcp_attr.shape))
+        return ku.size(self.key, self.args[0].size)
 
     def get_data(self):
         """Returns the (row slice, column slice).

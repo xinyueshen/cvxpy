@@ -37,45 +37,36 @@ class quad_over_lin(Atom):
         """
         return np.square(values[0]).sum()/values[1]
 
-    def grad(self, values):
-        rows, cols = np.matrix(values[0]).shape
-        partial_x = np.zeros((rows,cols,1,1))
-        partial_x[:,:,0,0] = np.multiply(values[0], 1/float(values[1]))
-        partial_x[:,:,0,0] = np.multiply(partial_x[:,:,0,0],2) #a number or a vector
-        rows, cols = np.matrix(values[1]).shape
-        partial_y = np.zeros((rows,cols,1,1))
-        partial_y[:,:,0,0] = -np.square(values[0]).sum()/float(np.square(values[1])) # a number
-        #result = self.args[0].gradient  ## first argument X
-        #for key in result:
-        #    result[key] = np.dot(result[key], partial_x)
-        #result_1 = self.args[1].gradient  ## second argument y
-        #for key in result_1:
-        #    if key in result:  #already has this variable in argument x
-        #        result[key] += np.multiply(partial_y, result_1[key])
-        #    else:
-        #        result[key] = np.multiply(partial_y,result_1[key])
-        return [partial_x, partial_y]
-
-
-    def shape_from_args(self):
-        """Resolves to a scalar.
+    def size_from_args(self):
+        """Returns the (row, col) size of the expression.
         """
-        return u.Shape(1,1)
+        return (1, 1)
 
     def sign_from_args(self):
-        """Always positive.
+        """Returns sign (is positive, is negative) of the expression.
         """
-        return u.Sign.POSITIVE
+        # Always positive.
+        return (True, False)
 
-    def func_curvature(self):
-        """Default curvature is convex.
+    def is_atom_convex(self):
+        """Is the atom convex?
         """
-        return u.Curvature.CONVEX
+        return True
 
-    def monotonicity(self):
-        """Increasing for positive x and decreasing for negative.
+    def is_atom_concave(self):
+        """Is the atom concave?
         """
-        return [u.monotonicity.SIGNED, u.monotonicity.DECREASING]
+        return False
+
+    def is_incr(self, idx):
+        """Is the composition non-decreasing in argument idx?
+        """
+        return (idx == 0) and self.args[idx].is_positive()
+
+    def is_decr(self, idx):
+        """Is the composition non-increasing in argument idx?
+        """
+        return ((idx == 0) and self.args[idx].is_negative()) or (idx == 1)
 
     def validate_arguments(self):
         """Check dimensions of arguments.
